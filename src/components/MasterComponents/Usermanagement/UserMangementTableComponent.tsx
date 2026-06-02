@@ -56,6 +56,11 @@ const UserManagementTableComponent = (props) => {
 				|| '----',
 		},
 		{
+			title: 'Employee Code',
+			field: 'employee_code',
+			render: (rowData) => (rowData?.employee_code || '----'),
+		},
+		{
 			title: 'Current Status',
 			field: 'current_clockin_status',
 			render: (rowData) =>

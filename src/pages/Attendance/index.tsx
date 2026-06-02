@@ -4,6 +4,7 @@ import SubHeader, { SubHeaderLeft, SubHeaderRight } from '../../layout/SubHeader
 import Card, { CardBody, CardHeader, CardLabel, CardTitle } from '../../components/bootstrap/Card';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
 import AddButton from '../../components/CustomComponent/Buttons/AddButton';
+import ExportButton, { EXPORT_VARIANTS } from '../../components/CustomComponent/Buttons/ExportButton';
 import AttendanceTable from './AttendanceTable';
 import AddAttendance from './AddAttendance';
 import AuthContext from '../../contexts/authContext';
@@ -13,7 +14,7 @@ const Index = () => {
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
 	const tableRef = useRef();
-	const urlBackup = useRef();
+	const urlBackup = useRef<string | undefined>(undefined);
 	const [attendanceModalShow, setAttendanceModalShow] = useState(false);
 	const [editId, setEditId] = useState<any>(null);
 	const isUserRole = String(userData?.user_type || '').toLowerCase() === 'user';
@@ -49,11 +50,16 @@ const Index = () => {
 							Attendance
 						</CardTitle>
 					</SubHeaderLeft>
-					{showAddAttendance && (
-						<SubHeaderRight>
+					<SubHeaderRight>
+						{showAddAttendance && (
 							<AddButton modalShow={openAddModal} name='Add Attendance' />
-						</SubHeaderRight>
-					)}
+						)}
+						<ExportButton
+							url={urlBackup}
+							name='Attendance'
+							variant={EXPORT_VARIANTS.attendance}
+						/>
+					</SubHeaderRight>
 				</SubHeader>
 				<Card stretch>
 					<CardHeader borderSize={1}>

@@ -51,7 +51,7 @@ const ReusableScheduleCalendar = ({
 }: ReusableScheduleCalendarProps) => {
 	const calendarFilterOptions = ['All', 'Schedule', 'Status', 'Leave', 'OT'];
 	const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
-	const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+	const [calendarRows, setCalendarRows] = useState<any[]>([]);
 	const [activeTab, setActiveTab] = useState('All');
 	const [loading, setLoading] = useState(false);
 	const [detailLoadingDate, setDetailLoadingDate] = useState<string | null>(null);
@@ -202,6 +202,69 @@ const ReusableScheduleCalendar = ({
 		);
 	};
 
+	/** Day-level status (e.g. SCHEDULED) — shown on the Status filter. */
+	const resolveMainDayStatus = (row: any): string | undefined => {
+		const dayStatus = row?.status;
+		return dayStatus != null && String(dayStatus).trim() !== '' ? String(dayStatus) : undefined;
+	};
+
+	/** `attendance.status` (e.g. ABSENT) — shown on the Leave filter for user calendar. */
+	const resolveAttendanceStatus = (row: any): string | undefined => {
+		const att = row?.attendance;
+		if (!att || typeof att !== 'object' || Array.isArray(att)) return undefined;
+		const attStatus = att.status;
+		return attStatus != null && String(attStatus).trim() !== '' ? String(attStatus) : undefined;
+	};
+
+	const isAttendanceLate = (row: any, ct: 'user' | 'group' | 'schedule'): boolean => {
+		if (ct !== 'user') return false;
+		const att = row?.attendance;
+		return Boolean(att && typeof att === 'object' && !Array.isArray(att) && att.is_late);
+	};
+
+	const getOtMinutes = (row: any): number => {
+		const att = row?.attendance;
+		if (att && typeof att === 'object' && !Array.isArray(att)) {
+			const raw = att.ot_mins ?? att.ot_minutes ?? att.overtime_mins ?? att.overtime_minutes;
+			const n = Number(raw);
+			if (Number.isFinite(n) && n > 0) return n;
+		}
+		const top = row?.ot_mins ?? row?.ot_minutes;
+		const nTop = Number(top);
+		if (Number.isFinite(nTop) && nTop > 0) return nTop;
+		return 0;
+	};
+
+	const buildScheduleEventTitle = (row: any): string => {
+		const lines: string[] = [];
+		const sd = row?.special_day;
+		const hasSpecialDay = sd != null && sd !== '';
+
+		if (hasSpecialDay && typeof sd === 'object') {
+			const sdName = String((sd as { name?: string }).name || '').trim();
+			if (sdName) lines.push(sdName);
+			const shiftLines = shiftLabelsFromShiftsField((sd as { shifts?: unknown }).shifts);
+			if (shiftLines.length) lines.push(summarizeShiftLabels(shiftLines, 2));
+		}
+
+		const sched = row?.schedule;
+		if (sched != null && sched !== '') {
+			const scheduleName = deriveScheduleTitle(sched);
+			if (scheduleName && !lines.includes(scheduleName)) lines.push(scheduleName);
+			const shiftSource =
+				typeof sched === 'object' && !Array.isArray(sched) ? (sched as { shifts?: unknown }).shifts : sched;
+			const shiftLines = shiftLabelsFromShiftsField(shiftSource);
+			if (shiftLines.length) lines.push(summarizeShiftLabels(shiftLines, 2));
+		}
+
+		if (!lines.length) {
+			const fallback = deriveShiftLabelFromRow(row);
+			if (fallback) lines.push(fallback);
+		}
+
+		return lines.join('\n');
+	};
+
 	/** Group calendar day rows: scheduled / leave counts from `schedule_summary` (row or each `schedule[]` item). */
 	const getGroupDayScheduleCounts = (row: any): { scheduled: number; leave: number } | null => {
 		const pick = (v: unknown) => (typeof v === 'number' && !Number.isNaN(v) ? v : null);
@@ -252,7 +315,8 @@ const ReusableScheduleCalendar = ({
 			});
 			return;
 		}
-		const statusMeta = getStatusMeta(row?.status);
+		const dayStatus = resolveMainDayStatus(row);
+		const statusMeta = getStatusMeta(dayStatus);
 		if (!statusMeta) return;
 		let title = statusMeta.label;
 		if (calendarType === 'group') {
@@ -266,14 +330,14 @@ const ReusableScheduleCalendar = ({
 			start,
 			end,
 			color: statusMeta.color,
-			resource: { kind: 'status' as const, status: row?.status },
+			resource: { kind: 'status' as const, status: dayStatus },
 		});
 	};
 
 	const SHIFT_EVENT_COLOR = '#495057';
 
 	const pushShiftDayEvents = (events: any[], row: any, d: Dayjs) => {
-		const shiftLabel = deriveShiftLabelFromRow(row);
+		const shiftLabel = buildScheduleEventTitle(row);
 		if (!shiftLabel) return;
 		events.push({
 			title: shiftLabel,
@@ -284,19 +348,58 @@ const ReusableScheduleCalendar = ({
 		});
 	};
 
-	const pushLeaveDayEvents = (events: any[], row: any, d: Dayjs) => {
+	const pushLeaveDayEvents = (
+		events: any[],
+		row: any,
+		d: Dayjs,
+		ct: 'user' | 'group' | 'schedule',
+	) => {
 		const leaveRequests = Array.isArray(row?.leave_requests) ? row.leave_requests : [];
-		const statusMeta = getStatusMeta(row?.status);
-		const isLeaveStatus = normalizeStatusKey(row?.status) === 'LEAVE';
-		if (!leaveRequests.length && !isLeaveStatus) return;
-		const leaveTitle = leaveRequests.length
-			? leaveRequests
-					.map((lr: any) => String(lr?.leave_type?.name || lr?.name || 'Leave').trim())
-					.filter(Boolean)
-					.join(', ')
-			: statusMeta?.label || 'On Leave';
+		const lines: string[] = [];
+
+		if (ct === 'user') {
+			const attStatus = resolveAttendanceStatus(row);
+			const attMeta = getStatusMeta(attStatus);
+			if (attMeta) {
+				let label = attMeta.label;
+				if (isAttendanceLate(row, ct)) label = `${label} (Late)`;
+				lines.push(label);
+			}
+		}
+
+		if (leaveRequests.length) {
+			const requestLabels = leaveRequests
+				.map((lr: any) => String(lr?.leave_type?.name || lr?.name || 'Leave').trim())
+				.filter(Boolean);
+			if (requestLabels.length) lines.push(requestLabels.join(', '));
+		}
+
+		const isLeaveDay = normalizeStatusKey(resolveMainDayStatus(row)) === 'LEAVE';
+		if (isLeaveDay && !leaveRequests.length && !lines.length) {
+			lines.push(getStatusMeta('LEAVE')?.label || 'On Leave');
+		}
+
+		if (ct !== 'user') {
+			const dayStatus = resolveMainDayStatus(row);
+			const isLeaveStatus = normalizeStatusKey(dayStatus) === 'LEAVE';
+			if (!leaveRequests.length && !isLeaveStatus) return;
+			if (!lines.length) {
+				const statusMeta = getStatusMeta(dayStatus);
+				lines.push(
+					leaveRequests.length
+						? leaveRequests
+								.map((lr: any) => String(lr?.leave_type?.name || lr?.name || 'Leave').trim())
+								.filter(Boolean)
+								.join(', ')
+						: statusMeta?.label || 'On Leave',
+				);
+			}
+		}
+
+		if (!lines.length) return;
+
 		events.push({
-			title: leaveTitle || 'On Leave',
+			title: lines.join('\n'),
 			start: d.toDate(),
 			end: d.endOf('day').toDate(),
 			color: LEAVE_EVENT_COLOR,
@@ -312,16 +415,16 @@ const ReusableScheduleCalendar = ({
 			row?.overtime_hours ??
 			row?.ot_summary ??
 			null;
-		const attendance = row?.attendance;
-		const attendanceHasOt =
-			attendance &&
-			typeof attendance === 'object' &&
-			!Array.isArray(attendance) &&
-			Object.keys(attendance).some((k) => /(^|_)(ot|overtime)($|_)/i.test(k));
-		const hasOt = otPayload != null || attendanceHasOt;
+		const otMins = getOtMinutes(row);
+		const hasDirectOt =
+			otPayload != null &&
+			otPayload !== '' &&
+			!(Array.isArray(otPayload) && otPayload.length === 0);
+		const hasOt = otMins > 0 || hasDirectOt;
 		if (!hasOt) return;
+		const title = otMins > 0 ? `OT ${otMins} min` : 'Overtime';
 		events.push({
-			title: 'Overtime',
+			title,
 			start: d.toDate(),
 			end: d.endOf('day').toDate(),
 			color: OT_EVENT_COLOR,
@@ -386,11 +489,11 @@ const ReusableScheduleCalendar = ({
 		if (tab === 'All' || tab === 'Status') {
 			pushAttendanceDayEvents(events, row, d, ct);
 		}
-		if (tab === 'All' || tab === 'Schedule' || tab === 'Status') {
+		if (tab === 'All' || tab === 'Schedule') {
 			pushShiftDayEvents(events, row, d);
 		}
 		if (tab === 'All' || tab === 'Leave') {
-			pushLeaveDayEvents(events, row, d);
+			pushLeaveDayEvents(events, row, d, ct);
 		}
 		if (tab === 'All' || tab === 'OT') {
 			pushOtDayEvents(events, row, d);
@@ -431,9 +534,15 @@ const ReusableScheduleCalendar = ({
 		return events;
 	};
 
+	const calendarEvents = useMemo(
+		() => buildEvents(calendarRows, calendarType),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[calendarRows, effectiveTab, monthBounds, calendarType],
+	);
+
 	useEffect(() => {
 		if (resolvedEntityId == null || resolvedEntityId === '') {
-			setCalendarEvents([]);
+			setCalendarRows([]);
 			setLoading(false);
 			if (!initialLoadNotifiedRef.current) {
 				initialLoadNotifiedRef.current = true;
@@ -463,12 +572,12 @@ const ReusableScheduleCalendar = ({
 			.then((response) => {
 				if (cancelled) return;
 				const rows = rowsFromCalendarResponse(response?.data);
-				setCalendarEvents(buildEvents(rows, calendarType));
+				setCalendarRows(rows);
 			})
 			.catch((error) => {
 				if (!cancelled) {
 					showErrorNotification(error);
-					setCalendarEvents([]);
+					setCalendarRows([]);
 				}
 			})
 			.finally(() => {
@@ -482,10 +591,7 @@ const ReusableScheduleCalendar = ({
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		
-	]);
+	}, []);
 
 	return (
 		<div>

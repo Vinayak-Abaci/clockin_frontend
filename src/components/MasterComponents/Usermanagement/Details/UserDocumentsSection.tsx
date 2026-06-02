@@ -25,7 +25,7 @@ const ACCOUNT_DETAIL_URL = (userId: string | number) => `api/hr/accounts/${userI
 const USER_DOCUMENT_DELETE_URL = (id: string | number) => `api/hr/user-documents/${id}/`;
 
 /** Fixed card height; file list scrolls when there are more items. */
-const DOCUMENTS_CARD_HEIGHT_PX = 530;
+const DOCUMENTS_CARD_HEIGHT_PX = 550;
 
 /** Matches account `documents_data` from GET /api/hr/accounts/:id/ */
 export type UserDocument = {

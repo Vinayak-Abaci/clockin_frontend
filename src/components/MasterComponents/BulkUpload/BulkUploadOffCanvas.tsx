@@ -11,7 +11,18 @@ import FormGroup from '../../bootstrap/forms/FormGroup';
 
 
 
-const BulkUpload = ({ isOpen, setIsOpen, tableRef, title,api,fileName }:any) => {
+const BulkUpload = ({
+	isOpen,
+	setIsOpen,
+	tableRef,
+	title,
+	api,
+	fileName,
+	uploadApi,
+	templateApi,
+	instructionsApi,
+	instructionsFileName,
+}: any) => {
 	const {showErrorNotification,showSuccessNotification}=useToasterNotification();
 	const {
 		register,
@@ -33,7 +44,7 @@ const BulkUpload = ({ isOpen, setIsOpen, tableRef, title,api,fileName }:any) => 
 		const payload = {csv_file:data.file[0]  };
 		setwaitingForAxios(true);
 		authAxiosFileUpload
-			.post(api, payload)
+			.post(uploadApi || api, payload)
 			.then((res) => {
 				setmessage(res.data.message)
 				if(res.data.errors||res.data.warnings){
@@ -128,7 +139,13 @@ const BulkUpload = ({ isOpen, setIsOpen, tableRef, title,api,fileName }:any) => 
 			  <Form onSubmit={handleSubmit(onSubmit)}>
 				<Card>
 				  <CardBody>
-					<ImportInstructions api={api} fileName={fileName} />
+					<ImportInstructions
+						api={api}
+						fileName={fileName}
+						templateApi={templateApi}
+						instructionsApi={instructionsApi}
+						instructionsFileName={instructionsFileName}
+					/>
 					<FormGroup label="">
 					  <input
 						type="file"

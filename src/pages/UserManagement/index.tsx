@@ -17,8 +17,7 @@ import EditUser from './EditUser';
 import UserManagementTableComponent from '../../components/MasterComponents/Usermanagement/UserMangementTableComponent';
 // import ExportButton from '../../components/CustomComponent/Buttons/ExportButton';
 import BulkUpload from '../../components/MasterComponents/BulkUpload/BulkUploadOffCanvas';
-// import ButtonWithPopover from '../../components/CustomComponent/Buttons/ButtonWithPopover';
-import AddButton from '../../components/CustomComponent/Buttons/AddButton';
+import ButtonWithPopover from '../../components/CustomComponent/Buttons/ButtonWithPopover';
 import usePermissionHook from '../../hooks/userPermissionHook';
 import AuthContext from '../../contexts/authContext';
 import ButtonFiltter from '../../components/CustomComponent/Filters/ButtonFiltter';
@@ -89,8 +88,12 @@ const Index = () => {
 					setIsOpen={setAddBulkModalShow}
 					tableRef={tableRef}
 					title='Bulk Upload'
-					api='api/users/user_csv_import_and_sample_csv_download?user_type=[Admin,User]'
-					fileName='Users.csv'
+					api='/api/hr/users/import/'
+					uploadApi='/api/hr/users/import/'
+					templateApi='/api/hr/users/import-template/'
+					instructionsApi='/api/hr/users/import-instructions/'
+					instructionsFileName='User-Import-Instructions.txt'
+					fileName='Users-Import-Template.xlsx'
 
 				/>
 			)}
@@ -104,12 +107,11 @@ const Index = () => {
 
 					</SubHeaderLeft>
 					<SubHeaderRight>
-						{/* <ButtonWithPopover 
-						  addModalShow={setAddModalShow}
-						  addBulkModalShow={setAddBulkModalShow}
-						  buttonName='Add User'
-						/> */}
-						<AddButton modalShow={setAddModalShow} name="Add User" />
+						<ButtonWithPopover
+							addModalShow={setAddModalShow}
+							addBulkModalShow={setAddBulkModalShow}
+							buttonName='Add User'
+						/>
 					</SubHeaderRight>
 				</SubHeader>
 				<Card stretch>

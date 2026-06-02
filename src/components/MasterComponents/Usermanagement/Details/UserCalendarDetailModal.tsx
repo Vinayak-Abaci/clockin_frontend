@@ -25,6 +25,10 @@ import {
 	attendanceDeletedByLine,
 	isAttendanceDeleted,
 } from '../../../../pages/Attendance/attendanceStatusUtils';
+import {
+	shiftLabelsFromShiftsField,
+	summarizeShiftLabels,
+} from '../../../../pages/Schedule/scheduleShiftUtils';
 
 type UserCalendarDetailModalProps = {
 	isOpen: boolean;
@@ -97,9 +101,23 @@ const getStatusMeta = (status: string | undefined) => {
 	);
 };
 
+const resolveMainDayStatus = (detail: any): string | undefined => {
+	const dayStatus = detail?.status;
+	return dayStatus != null && String(dayStatus).trim() !== '' ? String(dayStatus) : undefined;
+};
+
+const resolveAttendanceStatus = (detail: any): string | undefined => {
+	const att = detail?.attendance;
+	if (!att || typeof att !== 'object' || Array.isArray(att)) return undefined;
+	const attStatus = att.status;
+	return attStatus != null && String(attStatus).trim() !== '' ? String(attStatus) : undefined;
+};
+
 const formatShiftList = (raw: unknown): string => {
 	if (raw == null) return '';
 	if (typeof raw === 'string') return raw.trim();
+	const fromMap = shiftLabelsFromShiftsField(raw);
+	if (fromMap.length) return summarizeShiftLabels(fromMap, 2).replace(/\n/g, ', ');
 	if (!Array.isArray(raw)) return '';
 	const parts = raw
 		.map((s) => {
@@ -187,7 +205,14 @@ const isOtAttendanceKey = (key: string) => /(^|_)(ot|overtime)($|_)/i.test(key);
 
 const collectOtAttendanceEntries = (attendance: unknown): [string, unknown][] => {
 	if (attendance == null || typeof attendance !== 'object' || Array.isArray(attendance)) return [];
-	return Object.entries(attendance as Record<string, unknown>).filter(([k]) => isOtAttendanceKey(k));
+	return Object.entries(attendance as Record<string, unknown>).filter(([k, v]) => {
+		if (!isOtAttendanceKey(k)) return false;
+		if (/ot_mins|ot_minutes|overtime_mins/i.test(k)) {
+			const n = Number(v);
+			return Number.isFinite(n) && n > 0;
+		}
+		return v != null && v !== '' && v !== 0;
+	});
 };
 
 /** Supports plain array or paginated `{ results: [...] }` from `/api/hr/attendance/`. */
@@ -390,12 +415,33 @@ const UserCalendarDetailModal = ({
 	const reactSelectStyle = useSelectStyles(false);
 
 	const attendanceDeleted = isAttendanceDeleted(detail);
+	const mainDayStatus = resolveMainDayStatus(detail);
+	const attendanceDayStatus = resolveAttendanceStatus(detail);
 	const statusMeta = attendanceDeleted
 		? ATTENDANCE_REMOVED_META
-		: getStatusMeta(detail?.status != null ? String(detail.status) : undefined);
+		: getStatusMeta(mainDayStatus);
+	const attendanceStatusMeta = attendanceDeleted ? null : getStatusMeta(attendanceDayStatus);
+	const isLate =
+		!attendanceDeleted &&
+		Boolean(
+			detail?.attendance &&
+				typeof detail.attendance === 'object' &&
+				!Array.isArray(detail.attendance) &&
+				detail.attendance.is_late,
+		);
 	const statusLabel = attendanceDeleted
 		? ATTENDANCE_REMOVED_META.label
 		: statusMeta?.label ?? '—';
+	const attendanceStatusLabel = attendanceStatusMeta?.label
+		? isLate
+			? `${attendanceStatusMeta.label} (Late)`
+			: attendanceStatusMeta.label
+		: null;
+	const scheduleShiftText = useMemo(() => {
+		const sched = detail?.schedule;
+		if (sched == null || typeof sched !== 'object' || Array.isArray(sched)) return '';
+		return formatShiftList((sched as { shifts?: unknown }).shifts);
+	}, [detail?.schedule]);
 	const attendanceDeletedNote = attendanceDeletedByLine(detail);
 	const canManageAttendance = canPunchClock && !attendanceDeleted;
 	const userDisplayName = useMemo(
@@ -409,6 +455,12 @@ const UserCalendarDetailModal = ({
 
 	const leaveList = Array.isArray(detail?.leave_requests) ? detail.leave_requests : [];
 
+	const otMinutes = useMemo(() => {
+		const att = detail?.attendance;
+		if (!att || typeof att !== 'object' || Array.isArray(att)) return 0;
+		const n = Number(att.ot_mins ?? att.ot_minutes ?? att.overtime_mins);
+		return Number.isFinite(n) && n > 0 ? n : 0;
+	}, [detail?.attendance]);
 	const otAttendanceEntries = collectOtAttendanceEntries(detail?.attendance);
 	const directOtPayload =
 		detail?.overtime ??
@@ -579,7 +631,7 @@ const UserCalendarDetailModal = ({
 
 	const hasOtScheduleFlag = scheduleObj && 'ot_eligible' in scheduleObj;
 	const hasDirectOt = directOtPayload != null && directOtPayload !== '';
-	const hasOtAttendance = otAttendanceEntries.length > 0;
+	const hasOtAttendance = otMinutes > 0 || otAttendanceEntries.length > 0;
 	const showOtEmpty = !hasOtScheduleFlag && !hasDirectOt && !hasOtAttendance;
 	const otEntries = useMemo(() => {
 		if (!hasDirectOt) return [];
@@ -867,6 +919,9 @@ const UserCalendarDetailModal = ({
 											<div className='fw-semibold mt-2'>
 												{scheduleText || 'Schedule not found'}
 											</div>
+											{scheduleShiftText ? (
+												<div className='small text-muted mt-1'>{scheduleShiftText}</div>
+											) : null}
 											{attendanceDeletedNote && (
 												<div className='small text-muted fst-italic mt-1'>
 													{attendanceDeletedNote}
@@ -950,7 +1005,12 @@ const UserCalendarDetailModal = ({
 											</div>
 										</>
 									) : (
-										<div className='text-muted small'>{scheduleText || 'Schedule not found'}</div>
+										<>
+											<div className='text-muted small'>{scheduleText || 'Schedule not found'}</div>
+											{scheduleShiftText ? (
+												<div className='small text-muted mt-2'>{scheduleShiftText}</div>
+											) : null}
+										</>
 									)}
 								</div>
 
@@ -996,6 +1056,20 @@ const UserCalendarDetailModal = ({
 													+ Apply
 												</Button>
 											</div>
+											{attendanceStatusLabel ? (
+												<div className='d-flex align-items-center gap-2 mb-2'>
+													<span className='text-muted small'>Attendance:</span>
+													<Chip
+														label={attendanceStatusLabel}
+														size='small'
+														sx={{
+															fontWeight: 700,
+															bgcolor: `${attendanceStatusMeta?.color ?? '#6c757d'}22`,
+															color: attendanceStatusMeta?.color ?? '#495057',
+														}}
+													/>
+												</div>
+											) : null}
 											{leaveList.length ? (
 												<ul className='ps-3 mb-0 mt-2'>
 													{leaveList.map((lr: any) => (
@@ -1020,9 +1094,9 @@ const UserCalendarDetailModal = ({
 														</li>
 													))}
 												</ul>
-											) : (
+											) : !attendanceStatusLabel ? (
 												<div className='text-muted small'>No leave on this day</div>
-											)}
+											) : null}
 										</div>
 									</div>
 
@@ -1036,6 +1110,11 @@ const UserCalendarDetailModal = ({
 													+ Add
 												</Button>
 											</div>
+											{otMinutes > 0 && (
+												<div className='small mb-2'>
+													<span className='fw-semibold'>Recorded OT:</span> {otMinutes} min
+												</div>
+											)}
 											{hasOtScheduleFlag && (
 												<div className='mb-2'>
 													{renderOtEligibleChip(scheduleObj?.ot_eligible)}

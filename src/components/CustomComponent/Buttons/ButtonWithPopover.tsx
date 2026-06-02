@@ -6,7 +6,13 @@ import Dropdown, {
 } from '../../bootstrap/Dropdown';
 import Button from '../../bootstrap/Button';
 
-const ButtonWithPopover = ({addModalShow,addBulkModalShow,buttonName}:any) => {
+const ButtonWithPopover = ({
+	addModalShow,
+	addBulkModalShow,
+	buttonName,
+	onTemplateDownload,
+	onInstructionsDownload,
+}: any) => {
 	return (
 		<Dropdown isButtonGroup >
 			<Button color='secondary' isLight icon='Add' onClick={() => addModalShow(true)}>
@@ -19,6 +25,16 @@ const ButtonWithPopover = ({addModalShow,addBulkModalShow,buttonName}:any) => {
 				<DropdownItem>
 					<Button onClick={() => addBulkModalShow(true)}>Bulk Upload</Button>
 				</DropdownItem>
+				{onTemplateDownload && (
+					<DropdownItem>
+						<Button onClick={onTemplateDownload}>Download Template</Button>
+					</DropdownItem>
+				)}
+				{onInstructionsDownload && (
+					<DropdownItem>
+						<Button onClick={onInstructionsDownload}>Download Instructions</Button>
+					</DropdownItem>
+				)}
 			</DropdownMenu>
 		</Dropdown>
 	);

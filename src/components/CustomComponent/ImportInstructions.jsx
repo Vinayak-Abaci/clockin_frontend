@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import DescriptionIcon from '@mui/icons-material/Description';
 import downloadHandler from '../../helpers/DownloadCsv';
 import { validationlist } from '../../helpers/constants';
 
-const ImportInstructions = ({ api, fileName }) => {
+const ImportInstructions = ({ api, fileName, templateApi, instructionsApi, instructionsFileName }) => {
 	const [isLoading,setIsloading]=useState()
+	const resolvedTemplateApi = useMemo(() => templateApi || api, [templateApi, api]);
+	const resolvedInstructionsFileName = instructionsFileName || 'Import-Instructions.txt';
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter' || e.key === ' ') {
-			downloadHandler(api, fileName,setIsloading);
+			downloadHandler(resolvedTemplateApi, fileName,setIsloading);
 			console.log(isLoading)
 		}
 	};
@@ -20,7 +22,7 @@ const ImportInstructions = ({ api, fileName }) => {
 					<p className='highlight download-temp'>Download the Template:</p> Click on the
 					provided link to download the sample template
 					<span
-						onClick={() => downloadHandler(api, fileName,setIsloading)}
+						onClick={() => downloadHandler(resolvedTemplateApi, fileName,setIsloading)}
 						style={{
 							color: '#4D69FA',
 							marginLeft: '3px',
@@ -42,6 +44,35 @@ const ImportInstructions = ({ api, fileName }) => {
 					</span>{' '}
 					to ensure quick and error-free data upload.
 				</li>
+				{instructionsApi && (
+					<li>
+						<p className='highlight download-temp'>Optional Instructions:</p> Download the
+						import instruction file
+						<span
+							onClick={() =>
+								downloadHandler(instructionsApi, resolvedInstructionsFileName, setIsloading)
+							}
+							style={{
+								color: '#4D69FA',
+								marginLeft: '3px',
+								cursor: 'pointer',
+							}}
+							tabIndex={0}
+							role='button'
+							aria-label='Download import instructions'>
+							<u>{resolvedInstructionsFileName}</u>
+							<DescriptionIcon
+								style={{
+									fontSize: '18px',
+									marginTop: '-5px',
+									color: '#4D69FA',
+									marginLeft: '5px',
+								}}
+							/>
+						</span>
+						.
+					</li>
+				)}
 				<li>
 					<span className='highlight'>Enter Your Data:</span> Open the template, input
 					your data, and ensure all fields are mapped correctly to hold the data as
@@ -103,6 +134,9 @@ const ImportInstructions = ({ api, fileName }) => {
 ImportInstructions.propTypes = {
 	fileName: PropTypes.string.isRequired,
 	api: PropTypes.string.isRequired,
+	templateApi: PropTypes.string,
+	instructionsApi: PropTypes.string,
+	instructionsFileName: PropTypes.string,
 };
 /* eslint-enable react/forbid-prop-types */
 export default ImportInstructions;

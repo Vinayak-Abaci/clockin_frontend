@@ -3,6 +3,7 @@ import SubHeader, { SubHeaderLeft, SubHeaderRight } from '../../layout/SubHeader
 import Card, { CardBody, CardHeader, CardLabel, CardTitle } from '../../components/bootstrap/Card';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
 import AddButton from '../../components/CustomComponent/Buttons/AddButton';
+import ExportButton, { EXPORT_VARIANTS } from '../../components/CustomComponent/Buttons/ExportButton';
 import EventTable from './EventTable';
 import AddEventForm from './AddEventForm';
 import AuthContext from '../../contexts/authContext';
@@ -10,7 +11,7 @@ import AuthContext from '../../contexts/authContext';
 const Index = () => {
 	const { userData } = useContext(AuthContext);
 	const tableRef = useRef();
-	const urlBackup = useRef();
+	const urlBackup = useRef<string | undefined>(undefined);
 	const [eventModalShow, setEventModalShow] = useState(false);
 	const showAddEvent = userData?.user_type === 'Admin';
 
@@ -39,11 +40,14 @@ const Index = () => {
 							Event log
 						</CardTitle>
 					</SubHeaderLeft>
-					{showAddEvent && (
-						<SubHeaderRight>
-							<AddButton modalShow={openAddModal} name='Add event' />
-						</SubHeaderRight>
-					)}
+					<SubHeaderRight>
+						{showAddEvent && <AddButton modalShow={openAddModal} name='Add event' />}
+						<ExportButton
+							url={urlBackup}
+							name='Attendance events'
+							variant={EXPORT_VARIANTS.attendanceEvents}
+						/>
+					</SubHeaderRight>
 				</SubHeader>
 				<Card stretch>
 					<CardHeader borderSize={1}>
@@ -52,6 +56,7 @@ const Index = () => {
 								Events
 							</CardTitle>
 						</CardLabel>
+					
 					</CardHeader>
 					<CardBody className='table-responsive'>
 						<EventTable
