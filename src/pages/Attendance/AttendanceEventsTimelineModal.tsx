@@ -103,7 +103,7 @@ const AttendanceEventsTimelineModal = ({
 		};
 
 		load();
-	}, [isOpen, context, showErrorNotification]);
+	}, [isOpen]);
 
 	return (
 		<Modal

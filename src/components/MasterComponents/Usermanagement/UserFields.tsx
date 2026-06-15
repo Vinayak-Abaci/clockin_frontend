@@ -80,53 +80,48 @@ const UserFields = ({
 					)}
 				</FormGroup>
 			</div>
+			<div className='col-12 mb-2'>
+				<FormGroup label='Joined Date'>
+					<input
+						type='date'
+						className='form-control'
+						style={{ height: '40px' }}
+						{...register('joined_date')}
+					/>
+				</FormGroup>
+			</div>
 			</div>
 
 			<div className='row'>
 			<div className='col-12 mb-2'>
-				<FormGroup label='Address *'>
-					<input type='text' className='form-control' style={{ height: '40px' }} {...register('address', { required: true })} />
-					{errors.address?.type && (
-						<span style={{ color: 'red' }}>*This field is required</span>
-					)}
+				<FormGroup label='Address'>
+					<input type='text' className='form-control' style={{ height: '40px' }} {...register('address')} />
 				</FormGroup>
 			</div>
 			<div className='col-12 mb-2'>
-				<FormGroup label='State *'>
-					<input type='text' className='form-control' style={{ height: '40px' }} {...register('state', { required: true })} />
-					{errors.state?.type && (
-						<span style={{ color: 'red' }}>*This field is required</span>
-					)}
+				<FormGroup label='State'>
+					<input type='text' className='form-control' style={{ height: '40px' }} {...register('state')} />
 				</FormGroup>
 			</div>
 			</div>
 
 		<div className='row'>
 			<div className='col-12 mb-2'>
-				<FormGroup label='City *'>
-					<input type='text' className='form-control' style={{ height: '40px' }} {...register('city', { required: true })} />
-					{errors.city?.type && (
-						<span style={{ color: 'red' }}>*This field is required</span>
-					)}
+				<FormGroup label='City'>
+					<input type='text' className='form-control' style={{ height: '40px' }} {...register('city')} />
 				</FormGroup>
 	     </div>
 			<div className='col-12 mb-2'>
-				<FormGroup label='Pincode *'>
-					<input type='text' className='form-control' style={{ height: '40px' }} {...register('pincode', { required: true })} />
-					{errors.pincode?.type && (
-						<span style={{ color: 'red' }}>*This field is required</span>
-					)}
+				<FormGroup label='Pincode'>
+					<input type='text' className='form-control' style={{ height: '40px' }} {...register('pincode')} />
 				</FormGroup>
 			</div>
 		</div>
 
 		<div className='row'>
 			<div className='col-12 mb-2'>
-				<FormGroup label='Country *'>
-					<input type='text' className='form-control' style={{ height: '40px' }} {...register('country', { required: true })} />
-					{errors.country?.type && (
-						<span style={{ color: 'red' }}>*This field is required</span>
-					)}
+				<FormGroup label='Country'>
+					<input type='text' className='form-control' style={{ height: '40px' }} {...register('country')} />
 				</FormGroup>
 			</div>
 			<div className='col-12 mb-2'>

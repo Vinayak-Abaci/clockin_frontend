@@ -234,14 +234,16 @@ export const UserRoutes = {
 
 export const SelfRoutes = UserRoutes;
 
-/** HR console uses the same navigation as company admin (page access is still gated in contentRoutes). */
+/** HR and Manager consoles use the same sidebar as company admin (page access is gated in contentRoutes). */
 export const HRRoutes = CompanyAdminRoutes;
+export const ManagerRoutes = CompanyAdminRoutes;
 
 export const roleWiseRoutes: Record<string, any> = {
 	Admin: CompanyAdminRoutes,
-	Manager: HRRoutes,
+	Manager: ManagerRoutes,
 	HR: HRRoutes,
 	user: UserRoutes,
+	User: UserRoutes,
 };
 
 	

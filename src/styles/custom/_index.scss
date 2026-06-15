@@ -952,10 +952,25 @@ overflow-x: hidden;
 // HR dashboard — day summary (uses Bootstrap theme tokens)
 .hr-dashboard {
 	--hr-dash-radius: 1rem;
-	--hr-dash-shadow: 0 4px 24px rgba(var(--bs-dark-rgb), 0.06);
-	--hr-dash-shadow-hover: 0 12px 32px rgba(var(--bs-dark-rgb), 0.1);
 	--hr-dash-border: rgba(var(--bs-dark-rgb), 0.08);
 	--hr-dash-surface: rgba(var(--bs-dark-rgb), 0.04);
+
+	// Neomorphic surface & shadows
+	--hr-neu-surface: color-mix(in srgb, var(--bs-body-bg, #f8f9fa) 75%, var(--bs-card-bg, #fff));
+	--hr-neu-light: rgba(255, 255, 255, 0.85);
+	--hr-neu-dark: rgba(163, 177, 198, 0.45);
+	--hr-neu-shadow:
+		5px 5px 10px var(--hr-neu-dark),
+		-5px -5px 10px var(--hr-neu-light);
+	--hr-neu-shadow-hover:
+		7px 7px 14px var(--hr-neu-dark),
+		-7px -7px 14px var(--hr-neu-light);
+	--hr-neu-shadow-active:
+		inset 4px 4px 8px var(--hr-neu-dark),
+		inset -4px -4px 8px var(--hr-neu-light);
+	--hr-neu-shadow-sm:
+		3px 3px 6px var(--hr-neu-dark),
+		-3px -3px 6px var(--hr-neu-light);
 
 	&__hero {
 		position: relative;
@@ -969,7 +984,7 @@ overflow-x: hidden;
 			color-mix(in srgb, var(--bs-dark) 75%, var(--bs-primary)) 100%
 		);
 		color: #fff;
-		box-shadow: var(--hr-dash-shadow);
+		box-shadow: 0 4px 24px rgba(var(--bs-dark-rgb), 0.12);
 
 		&::after {
 			content: '';
@@ -1044,16 +1059,42 @@ overflow-x: hidden;
 	&__stat-card {
 		height: 100%;
 		min-width: 0;
-		border: 1px solid var(--hr-dash-border);
+		border: none;
 		border-radius: var(--hr-dash-radius);
 		padding: 1.25rem 1.25rem 1.25rem 1.1rem;
-		background: var(--hr-stat-bg, var(--bs-card-bg, #fff));
-		box-shadow: var(--hr-dash-shadow);
+		background: color-mix(in srgb, var(--hr-stat-bg, transparent) 35%, var(--hr-neu-surface));
+		box-shadow: var(--hr-neu-shadow);
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
 
 		&:hover {
 			transform: translateY(-2px);
-			box-shadow: var(--hr-dash-shadow-hover);
+			box-shadow: var(--hr-neu-shadow-hover);
+		}
+
+		&--link {
+			display: block;
+			color: inherit;
+			text-decoration: none;
+			cursor: pointer;
+
+			&[type='button'] {
+				appearance: none;
+				font: inherit;
+				width: 100%;
+				text-align: left;
+			}
+
+			&:active {
+				transform: translateY(0);
+				box-shadow: var(--hr-neu-shadow-active);
+			}
+		}
+
+		&--active {
+			transform: translateY(0);
+			box-shadow:
+				var(--hr-neu-shadow-active),
+				0 0 0 2px var(--hr-stat-accent, var(--bs-warning));
 		}
 	}
 
@@ -1064,8 +1105,9 @@ overflow-x: hidden;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: color-mix(in srgb, var(--hr-stat-accent, var(--bs-warning)) 18%, transparent);
+		background: color-mix(in srgb, var(--hr-stat-accent, var(--bs-warning)) 18%, var(--hr-neu-surface));
 		color: var(--hr-stat-accent, var(--bs-warning));
+		box-shadow: var(--hr-neu-shadow-sm);
 		margin-bottom: 0.85rem;
 
 		svg {
@@ -1091,10 +1133,10 @@ overflow-x: hidden;
 	}
 
 	&__panel {
-		border: 1px solid var(--hr-dash-border);
+		border: none;
 		border-radius: var(--hr-dash-radius);
-		background: var(--bs-card-bg, #fff);
-		box-shadow: var(--hr-dash-shadow);
+		background: var(--hr-neu-surface);
+		box-shadow: var(--hr-neu-shadow);
 		padding: 1.5rem;
 		height: 100%;
 	}
@@ -1126,7 +1168,8 @@ overflow-x: hidden;
 	&__progress-track {
 		height: 8px;
 		border-radius: 4px;
-		background: var(--hr-dash-surface);
+		background: var(--hr-neu-surface);
+		box-shadow: var(--hr-neu-shadow-active);
 		overflow: hidden;
 	}
 
@@ -1287,16 +1330,17 @@ overflow-x: hidden;
 	}
 
 	&__schedule-card {
-		border: 1px solid var(--hr-dash-border);
+		border: none;
 		border-radius: var(--hr-dash-radius);
-		background: var(--bs-card-bg, #fff);
-		box-shadow: var(--hr-dash-shadow);
+		background: var(--hr-neu-surface);
+		box-shadow: var(--hr-neu-shadow);
 		padding: 1.25rem 1.35rem;
 		height: 100%;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
 
 		&:hover {
-			box-shadow: var(--hr-dash-shadow-hover);
+			transform: translateY(-2px);
+			box-shadow: var(--hr-neu-shadow-hover);
 		}
 	}
 
@@ -1529,6 +1573,12 @@ overflow-x: hidden;
 		background: rgba(var(--bs-primary-rgb), 0.18);
 		color: var(--bs-primary);
 	}
+}
+
+[theme='dark'] .hr-dashboard {
+	--hr-neu-surface: var(--bs-body-bg, #1f2128);
+	--hr-neu-light: rgba(255, 255, 255, 0.04);
+	--hr-neu-dark: rgba(0, 0, 0, 0.5);
 }
 
 .hr-settings-toggle-row {

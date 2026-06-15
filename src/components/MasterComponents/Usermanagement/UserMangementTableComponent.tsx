@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import EditButton from '../../CustomComponent/Buttons/EditButton';
 import ImageCell from '../../CustomComponent/Imagecell';
 import { resolveUserAvatarSource } from '../../../helpers/functions';
+import Moments from '../../../helpers/Moment';
 
 const UserManagementTableComponent = (props) => {
 	const { tableRef, editModalToggle ,urlBackup,tenant,activeTab} = props;
@@ -77,6 +78,12 @@ const UserManagementTableComponent = (props) => {
 			title: 'Gender',
 			field: 'gender',
 			render: (rowData) => (rowData?.gender || '----'),
+		},
+		{
+			title: 'Joined Date',
+			field: 'joined_date',
+			render: (rowData) =>
+				rowData?.joined_date ? Moments(rowData.joined_date, 'date') : '----',
 		},
 		// {
 		// 	title: 'Designation',

@@ -104,6 +104,7 @@ const buildFormValuesFromAccount = (user, scheduleOptions, reportingOpts, hrOpts
 		last_name: user?.last_name || user?.user_data?.last_name || '',
 		gender: mapGenderSelect(user?.gender),
 		dob: user?.dob ? String(user.dob).slice(0, 10) : '',
+		joined_date: user?.joined_date ? String(user.joined_date).slice(0, 10) : '',
 		address: user?.address || '',
 		state: user?.state || '',
 		city: user?.city || '',
@@ -140,6 +141,7 @@ const buildAccountFormData = (data, image, initialScheduleIds = []) => {
 	appendFormField(formData, 'last_name', data?.last_name);
 	appendFormField(formData, 'gender', data?.gender?.value);
 	appendFormField(formData, 'dob', data?.dob);
+	appendFormField(formData, 'joined_date', data?.joined_date);
 	appendFormField(formData, 'address', data?.address);
 	appendFormField(formData, 'state', data?.state);
 	appendFormField(formData, 'city', data?.city);

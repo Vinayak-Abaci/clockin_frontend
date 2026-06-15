@@ -32,106 +32,112 @@ interface CustomRouteConfig {
 	allowedTo?: string[]; // Custom property for role-based access control
 }
 
+/** Admin console roles — Manager shares the same page access as Admin. */
+const ADMIN_CONSOLE_ROLES = ['Admin', 'Manager', 'HR'];
+/** User role and Self toggle mode share the same self-service pages. */
+const SELF_MODE_USER_ROLE = 'user';
+const SELF_MODE_ROUTES = [...ADMIN_CONSOLE_ROLES, SELF_MODE_USER_ROLE];
+
 const RouteConfig: CustomRouteConfig[] = [
 	{
 		path: allRoutesObject.dashboard.path,
 		element: <MAINROUTE.Dashboard />,
-		allowedTo:  ['Admin','HR']
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: pagesNotInSideBar.Profile.path,
 		element: <MAINROUTE.Profile/>,
-		allowedTo:   ['Admin','HR']
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.UserManagement.path,
 		element: <MAINROUTE.Users/>,
-		allowedTo:   ['Admin','HR']
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.site.path,
 		element: <MAINROUTE.site/>,
-		allowedTo:   ['Admin','HR']
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: pagesNotInSideBar.GroupTemplateDetail.path,
 		element: <MAINROUTE.GroupDetail />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.UserGroups.path,
 		element: <MAINROUTE.UserGroups/>,
-		allowedTo:   ['Admin','HR']
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: pagesNotInSideBar.ScheduleTemplateDetail.path,
 		element: <MAINROUTE.ScheduleDetail />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.Schedule.path,
 		element: <MAINROUTE.Schedule />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.Shift.path,
 		element: <MAINROUTE.Shift />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.ScheduleComponentDemo.path,
 		element: <MAINROUTE.ScheduleComponentDemo />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: pagesNotInSideBar.UsertDetails.path,
 		element: <MAINROUTE.UserDetails />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.LeaveRequests.path,
 		element: <MAINROUTE.LeaveRequests />,
-		allowedTo: ['Admin', 'Manager', 'HR', 'user'],
+		allowedTo: SELF_MODE_ROUTES,
 	},
 	{
 		path: allRoutesObject.LeaveTypes.path,
 		element: <MAINROUTE.LeaveTypes />,
-		allowedTo: ['Admin', 'HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.LeaveManagement.path,
 		element: <MAINROUTE.LeaveManagement />,
-		allowedTo: ['Admin', 'HR', 'user'],
+		allowedTo: SELF_MODE_ROUTES,
 	},
 	{
 		path: allRoutesObject.Attendance.path,
 		element: <MAINROUTE.Attendance />,
-		allowedTo: ['Admin','HR','user'],
+		allowedTo: SELF_MODE_ROUTES,
 	},
 	{
 		path: allRoutesObject.UserSchedule.path,
 		element: <MAINROUTE.UserSchedule />,
-		allowedTo: ['Admin', 'HR','user'],
+		allowedTo: SELF_MODE_ROUTES,
 	},
 	{
 		path: allRoutesObject.SpecialPeriod.path,
 		element: <MAINROUTE.SpecialPeriod />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.EventLog.path,
 		element: <MAINROUTE.EventLog />,
-		allowedTo: ['Admin','HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.RoleManagement.path,
 		element: <MAINROUTE.RoleManagement />,
-		allowedTo: ['Admin', 'HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
 		path: allRoutesObject.Settings.path,
 		element: <MAINROUTE.Settings />,
-		allowedTo: ['Admin', 'HR'],
+		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 ]
 

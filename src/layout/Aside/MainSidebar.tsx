@@ -7,22 +7,18 @@ import ThemeContext from '../../contexts/themeContext';
 import Aside, { AsideBody, AsideFoot, AsideHead } from './Aside';
 import AuthContext from '../../contexts/authContext';
 import { SelfRoutes, roleWiseRoutes } from '../../routes/RoutesMenu';
+import { isSelfEquivalentMode, resolveUserTypeString } from '../../helpers/roleToggleUtils';
 
 const MainSidebar = () => {
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const { asideStatus, setAsideStatus } = useContext(ThemeContext);
 	const mode = accountToggle || 'Admin';
-	const rawType = userData?.user_type;
-	const role =
-		rawType == null
-			? 'Admin'
-			: typeof rawType === 'object'
-				? String((rawType as { name?: string; role_name?: string }).name ?? (rawType as { role_name?: string }).role_name ?? 'user')
-				: String(rawType);
+	const role = resolveUserTypeString(userData?.user_type) || 'Admin';
 
-	const navigationMenu =
-		mode === 'Self' ? SelfRoutes : roleWiseRoutes[role] || roleWiseRoutes.Admin || {};
+	const navigationMenu = isSelfEquivalentMode(userData?.user_type, mode)
+		? SelfRoutes
+		: roleWiseRoutes[role] || roleWiseRoutes.Admin || {};
 
 	return (
 		<Aside >

@@ -152,6 +152,7 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 		appendFormField(formData, 'last_name', data?.last_name);
 		appendFormField(formData, 'gender', data?.gender?.value);
 		appendFormField(formData, 'dob', data?.dob);
+		appendFormField(formData, 'joined_date', data?.joined_date);
 		appendFormField(formData, 'address', data?.address);
 		appendFormField(formData, 'state', data?.state);
 		appendFormField(formData, 'city', data?.city);

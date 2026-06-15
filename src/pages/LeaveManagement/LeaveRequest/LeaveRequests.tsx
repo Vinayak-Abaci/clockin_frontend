@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import MaterialTable from '@material-table/core';
 import { ThemeProvider } from '@mui/material/styles';
-import Chip from '@mui/material/Chip';
 import { Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -15,10 +14,8 @@ import AuthContext from '../../../contexts/authContext';
 import AcceptandRejectBasedOnStatus from '../../../components/CustomComponent/Buttons/AcceptandRejectBasedOnStatus';
 import CustomBadge from '../../../components/CustomComponent/CustomBadge';
 import EditButton from '../../../components/CustomComponent/Buttons/EditButton';
-import Card, { CardActions, CardBody, CardHeader, CardTitle } from '../../../components/bootstrap/Card';
-import AddButton from '../../../components/CustomComponent/Buttons/AddButton';
+import Card, { CardBody } from '../../../components/bootstrap/Card';
 import Button from '../../../components/bootstrap/Button';
-import AddLeaveRequest from './AddLeaveRequest';
 import LeaveApprovalTimelineModal, {
 	type LeaveApprovalTimelineContext,
 } from './LeaveApprovalTimelineModal';
@@ -33,7 +30,17 @@ import {
 	resolveLeaveDocumentsFromRow,
 } from './leaveRequestDocuments';
 import LeaveRequestsTodaySummary from './LeaveRequestsTodaySummary';
-import { isPrivilegedToggleMode } from '../../../helpers/roleToggleUtils';
+import {
+	isPrivilegedToggleMode,
+	isSelfEquivalentMode,
+} from '../../../helpers/roleToggleUtils';
+import {
+	LEAVE_STATUS_LOOKUP,
+	isEditableLeaveRequestStatus,
+	isLeaveRequestDocumentUploadAllowed,
+	todayLeaveRequestDateParam,
+	type LeaveRequestUrlFilters,
+} from './leaveRequestTableNavigation';
 
 export type LeaveTypeTableFilter = {
 	id: number;
@@ -55,7 +62,42 @@ type LeaveRequestsProps = {
 	urlBackup: React.MutableRefObject<string>;
 	editModalToggle: (id: any) => void;
 	leaveTypeFilter?: LeaveTypeTableFilter | null;
-	onClearLeaveTypeFilter?: () => void;
+	statusFilter?: string | null;
+	dateFilter?: string | null;
+	onUrlFiltersChange?: (filters: LeaveRequestUrlFilters) => void;
+};
+
+const parseTableFilters = (
+	filters: any[],
+	preservedDate: string | null = null,
+): LeaveRequestUrlFilters => {
+	let status: string | null = null;
+	let leaveTypeId: number | null = null;
+	let leaveTypeName: string | null = null;
+
+	filters.forEach((item) => {
+		const field = item?.column?.field;
+		const { value } = item ?? {};
+
+		if (field === 'status' && Array.isArray(value) && value.length > 0) {
+			status = String(value[0]).trim().toUpperCase();
+			return;
+		}
+
+		if (field === 'leave_type' && Array.isArray(value) && value.length > 0) {
+			const rawId = value[0];
+			const parsedId = Number(rawId);
+			if (!Number.isNaN(parsedId)) {
+				leaveTypeId = parsedId;
+				leaveTypeName =
+					item?.column?.lookup?.[rawId] ??
+					item?.column?.lookup?.[String(rawId)] ??
+					null;
+			}
+		}
+	});
+
+	return { status, leaveTypeId, leaveTypeName, date: preservedDate };
 };
 
 const LeaveRequests = ({
@@ -63,28 +105,25 @@ const LeaveRequests = ({
 	urlBackup,
 	editModalToggle,
 	leaveTypeFilter = null,
-	onClearLeaveTypeFilter,
+	statusFilter = null,
+	dateFilter = null,
+	onUrlFiltersChange,
 }: LeaveRequestsProps) => {
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
 	const isPrivilegedMode = isPrivilegedToggleMode(userData?.user_type, mode);
-	const isAdminMode = userData?.user_type === 'Admin' && mode === 'Admin';
-	const isSelfMode =
-		userData?.user_type === 'user' ||
-		(userData?.user_type === 'Admin' && mode === 'Self');
+	const isSelfMode = isSelfEquivalentMode(userData?.user_type, mode);
 	const userIdFilter = isSelfMode && userData?.id ? `user=${userData.id}` : '';
-	const leaveTypeFilterParam =
-		leaveTypeFilter?.id != null ? `leave_type=${leaveTypeFilter.id}` : '';
-	const scopeFilters = [userIdFilter, leaveTypeFilterParam].filter(Boolean).join('&');
+	const scopeFilters = userIdFilter;
 	/** Accept/Reject for Admin, Manager, and HR in privileged mode (not Self / user view) */
 	const showPrivilegedAcceptReject = isPrivilegedMode;
 
-	const [filterEnabled, setFilterEnabled] = useState(false);
+	const [filterEnabled, setFilterEnabled] = useState(
+		Boolean(statusFilter || leaveTypeFilter || dateFilter),
+	);
 	const [pageSize, setPageSize] = useState(5);
 	const [sortState, setSortState] = useState({ orderBy: null, orderDirection: 'asc' });
-	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [editId, setEditId] = useState<any>(null);
 	const [timelineOpen, setTimelineOpen] = useState(false);
 	const [timelineContext, setTimelineContext] = useState<LeaveApprovalTimelineContext | null>(
 		null,
@@ -110,14 +149,6 @@ const LeaveRequests = ({
 	}, []);
 	const { theme, rowStyles, headerStyles } = useTablestyle();
 	const { showErrorNotification } = useToasterNotification();
-	const openAddModal = () => {
-		setEditId(null);
-		setIsFormOpen(true);
-	};
-	const handleEditModalToggle = useCallback((id: any) => {
-		setEditId(id);
-		setIsFormOpen(true);
-	}, []);
 
 	const leaveRequestDocuments = useCallback(
 		(rowData: any) => resolveLeaveDocumentsFromRow(rowData),
@@ -149,8 +180,30 @@ const LeaveRequests = ({
 	}, [tableRef]);
 
 	useEffect(() => {
-		tableRef?.current?.onQueryChange?.();
-	}, [leaveTypeFilter, tableRef]);
+		if (statusFilter || leaveTypeFilter || dateFilter) {
+			setFilterEnabled(true);
+		}
+	}, [statusFilter, leaveTypeFilter, dateFilter]);
+
+	const handleTableFilterChange = useCallback(
+		(filters: any[]) => {
+			onUrlFiltersChange?.(parseTableFilters(filters, dateFilter));
+		},
+		[onUrlFiltersChange, dateFilter],
+	);
+
+	const handleSummaryCardClick = useCallback(
+		(status: string | null) => {
+			onUrlFiltersChange?.({
+				status,
+				leaveTypeId: leaveTypeFilter?.id ?? null,
+				leaveTypeName: leaveTypeFilter?.name ?? null,
+				date: todayLeaveRequestDateParam(),
+			});
+			setFilterEnabled(true);
+		},
+		[onUrlFiltersChange, leaveTypeFilter],
+	);
 
 	const staticColumns = useMemo(
 		() => [
@@ -161,7 +214,13 @@ const LeaveRequests = ({
 			},
 			{
 				title: 'Leave Type',
-				field: 'leave_type__name',
+				field: leaveTypeFilter ? 'leave_type' : 'leave_type__name',
+				...(leaveTypeFilter
+					? {
+							lookup: { [leaveTypeFilter.id]: leaveTypeFilter.name },
+							defaultFilter: [leaveTypeFilter.id],
+						}
+					: {}),
 				render: (rowData: any) =>
 					rowData?.leave_type?.name || '----',
 			},
@@ -194,6 +253,8 @@ const LeaveRequests = ({
 			{
 				title: 'Status',
 				field: 'status',
+				lookup: LEAVE_STATUS_LOOKUP,
+				...(statusFilter ? { defaultFilter: [statusFilter] } : {}),
 				render: (rowData: any) => {
 					const status = leaveRequestRowStatus(rowData);
 					if (!status) return '----';
@@ -206,9 +267,15 @@ const LeaveRequests = ({
 				},
 			},
 		],
-		[],
+		[leaveTypeFilter, statusFilter],
 	);
 	
+	const showEditLeaveRequest = useCallback(
+		(rowData: any) =>
+			!isSelfMode || isEditableLeaveRequestStatus(leaveRequestRowStatus(rowData)),
+		[isSelfMode],
+	);
+
 	const columns = useMemo(() => {
 		const actionColumn = {
 			title: 'Actions',
@@ -225,8 +292,22 @@ const LeaveRequests = ({
 							tableRef={tableRef}
 							url='/api/hr/leave-requests'
 							status={leaveRequestRowStatus(rowData) ?? ''}
+							canApprove={rowData?.actions?.can_approve}
+							canReject={rowData?.actions?.can_reject}
+							canCancel={rowData?.actions?.can_cancel}
 						/>
 					)}
+					{isSelfMode && isEditableLeaveRequestStatus(leaveRequestRowStatus(rowData)) ? (
+						<AcceptandRejectBasedOnStatus
+							id={rowData.id}
+							tableRef={tableRef}
+							url='/api/hr/leave-requests'
+							status={leaveRequestRowStatus(rowData) ?? ''}
+							canApprove={false}
+							canReject={false}
+							canCancel={rowData?.actions?.can_cancel ?? true}
+						/>
+					) : null}
 					<Tooltip arrow title='View approval status' placement='top'>
 						<Button
 							type='button'
@@ -255,29 +336,35 @@ const LeaveRequests = ({
 							/>
 						</Tooltip>
 					) : null}
-					<Tooltip arrow title='Upload document' placement='top'>
-						<Button
-							type='button'
-							color='info'
-							isLight
-							size='sm'
-							icon='Upload'
-							onClick={(e: React.MouseEvent) => {
-								e.stopPropagation();
-								openUploadDocument(rowData);
-							}}
-						/>
-					</Tooltip>
-					<EditButton modalShow={handleEditModalToggle} id={rowData.id} />
+					{isLeaveRequestDocumentUploadAllowed(leaveRequestRowStatus(rowData)) ? (
+						<Tooltip arrow title='Upload document' placement='top'>
+							<Button
+								type='button'
+								color='info'
+								isLight
+								size='sm'
+								icon='Upload'
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									openUploadDocument(rowData);
+								}}
+							/>
+						</Tooltip>
+					) : null}
+					{showEditLeaveRequest(rowData) ? (
+						<EditButton modalShow={editModalToggle} id={rowData.id} />
+					) : null}
 				</div>
 			),
 		};
 		return [...staticColumns, actionColumn];
 	}, [
 		staticColumns,
+		isSelfMode,
 		showPrivilegedAcceptReject,
+		showEditLeaveRequest,
 		tableRef,
-		handleEditModalToggle,
+		editModalToggle,
 		openUploadDocument,
 		openApprovalTimeline,
 		openViewDocuments,
@@ -302,46 +389,24 @@ const LeaveRequests = ({
 				context={uploadContext}
 				onUploaded={refreshTable}
 			/>
-			{isFormOpen && (
-				<AddLeaveRequest
-					isOpen={isFormOpen}
-					setIsOpen={setIsFormOpen}
-					tableRef={tableRef}
-					title={editId ? 'Edit Leave Request' : 'Add Leave Request'}
-					id={editId}
-				/>
-			)}
 			{isPrivilegedMode ? (
-				<LeaveRequestsTodaySummary refreshKey={summaryRefreshKey} />
+				<LeaveRequestsTodaySummary
+					refreshKey={summaryRefreshKey}
+					activeStatus={statusFilter}
+					activeDate={dateFilter}
+					onCardClick={handleSummaryCardClick}
+				/>
 			) : null}
 			<Card stretch>
-				<CardHeader>
-					<div className='d-flex flex-wrap align-items-center gap-2'>
-						{/* <CardTitle tag='div' className='h6 mb-0'>
-							Leave Requests
-						</CardTitle> */}
-						{leaveTypeFilter ? (
-							<Chip
-								size='small'
-								label={`Leave type: ${leaveTypeFilter.name}`}
-								onDelete={onClearLeaveTypeFilter}
-								color='primary'
-								variant='outlined'
-							/>
-						) : null}
-					</div>
-					<CardActions>
-						{!isAdminMode && <AddButton name='Add Leave Request' modalShow={openAddModal} />}
-					</CardActions>
-				</CardHeader>
 				<CardBody>
 					<div className='material-table-wrapper'>
 						<ThemeProvider theme={theme}>
 							<MaterialTable
-					key={`${sortState.orderBy ?? 'no-order'}-${sortState.orderDirection}`}
+					key={`${sortState.orderBy ?? 'no-order'}-${sortState.orderDirection}-${statusFilter ?? ''}-${leaveTypeFilter?.id ?? ''}-${dateFilter ?? ''}`}
 					title=' '
 					columns={columns as any}
 					tableRef={tableRef}
+					onFilterChange={handleTableFilterChange}
 					// onChangeRowsPerPage={setPageSize}
 					onOrderChange={(orderBy, orderDirection) => {
 						setSortState({ orderBy, orderDirection });
@@ -357,9 +422,12 @@ const LeaveRequests = ({
 										: `&ordering=${String(query.orderBy?.field)}`;
 							}
 
+							const dateParam = dateFilter
+								? `&date=${encodeURIComponent(dateFilter)}`
+								: '';
 							const url = `/api/hr/leave-requests?${scopeFilters ? `${scopeFilters}&` : ''}limit=${query.pageSize}&offset=${
 								query.pageSize * query.page
-							}&search=${query.search}${orderBy}&${otherFilters}`;
+							}&search=${query.search}${orderBy}${dateParam}&${otherFilters}`;
 
 							urlBackup.current = url;
 							authAxios
@@ -418,7 +486,9 @@ LeaveRequests.propTypes = {
 		id: PropTypes.number.isRequired,
 		name: PropTypes.string.isRequired,
 	}),
-	onClearLeaveTypeFilter: PropTypes.func,
+	statusFilter: PropTypes.string,
+	dateFilter: PropTypes.string,
+	onUrlFiltersChange: PropTypes.func,
 };
 /* eslint-enable react/forbid-prop-types */
 

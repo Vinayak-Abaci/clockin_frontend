@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import TodayOutlinedIcon from '@mui/icons-material/TodayOutlined';
 import PendingActionsOutlinedIcon from '@mui/icons-material/PendingActionsOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -13,6 +14,7 @@ import {
 	dashboardStatStyle,
 	type DashboardTone,
 } from '../../Dashboard/dashboardTheme';
+import { todayLeaveRequestDateParam } from './leaveRequestTableNavigation';
 
 type StatusCounts = Record<string, number | undefined>;
 
@@ -164,21 +166,60 @@ type StatCardProps = {
 	value: number;
 	tone: DashboardTone;
 	icon: React.ReactNode;
+	onClick?: () => void;
+	active?: boolean;
 };
 
-const StatCard = ({ label, value, tone: cardTone, icon }: StatCardProps) => (
-	<div className='hr-dashboard__stat-card' style={dashboardStatStyle(cardTone)}>
-		<div className='hr-dashboard__stat-icon'>{icon}</div>
-		<div className='hr-dashboard__stat-value'>{value}</div>
-		<div className='hr-dashboard__stat-label'>{label}</div>
-	</div>
-);
+const StatCard = ({ label, value, tone: cardTone, icon, onClick, active }: StatCardProps) => {
+	const content = (
+		<>
+			<div className='hr-dashboard__stat-icon'>{icon}</div>
+			<div className='hr-dashboard__stat-value'>{value}</div>
+			<div className='hr-dashboard__stat-label'>{label}</div>
+		</>
+	);
+
+	const className = classNames('hr-dashboard__stat-card', {
+		'hr-dashboard__stat-card--link': onClick,
+		'hr-dashboard__stat-card--active': active,
+	});
+
+	const style = dashboardStatStyle(cardTone);
+
+	if (onClick) {
+		return (
+			<button
+				type='button'
+				className={className}
+				style={style}
+				onClick={onClick}
+				aria-label={`Filter leave requests: ${label}`}
+				aria-pressed={active}>
+				{content}
+			</button>
+		);
+	}
+
+	return (
+		<div className={className} style={style}>
+			{content}
+		</div>
+	);
+};
 
 type LeaveRequestsTodaySummaryProps = {
 	refreshKey?: number;
+	activeStatus?: string | null;
+	activeDate?: string | null;
+	onCardClick?: (status: string | null) => void;
 };
 
-const LeaveRequestsTodaySummary = ({ refreshKey = 0 }: LeaveRequestsTodaySummaryProps) => {
+const LeaveRequestsTodaySummary = ({
+	refreshKey = 0,
+	activeStatus = null,
+	activeDate = null,
+	onCardClick,
+}: LeaveRequestsTodaySummaryProps) => {
 	const { showErrorNotification } = useToasterNotification();
 	const showErrorRef = useRef(showErrorNotification);
 	showErrorRef.current = showErrorNotification;
@@ -240,18 +281,25 @@ const LeaveRequestsTodaySummary = ({ refreshKey = 0 }: LeaveRequestsTodaySummary
 	const counts = resolveCounts(summary);
 	const total = resolveTotal(summary);
 
+	const todayDateParam = todayLeaveRequestDateParam();
+	const isTodayFilterActive = activeDate === todayDateParam;
+
 	const statCards: StatCardProps[] = [
 		{
 			label: 'Total',
 			value: total,
 			tone: DASHBOARD_LEAVE_THEME.total,
 			icon: <TodayOutlinedIcon />,
+			onClick: onCardClick ? () => onCardClick(null) : undefined,
+			active: isTodayFilterActive && !activeStatus,
 		},
 		...LEAVE_STATUS_ORDER.map((key) => ({
 			label: LEAVE_STATUS_LABELS[key],
 			value: countFromMap(counts, key),
 			tone: leaveStatusTheme(key),
 			icon: statusIcon(key),
+			onClick: onCardClick ? () => onCardClick(key) : undefined,
+			active: isTodayFilterActive && activeStatus === key,
 		})),
 	];
 

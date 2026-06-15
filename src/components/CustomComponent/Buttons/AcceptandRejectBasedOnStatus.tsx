@@ -8,27 +8,48 @@ import { extractApiErrorMessage } from '../../../hooks/useErrorHandler';
 
 
 interface AcceptAndRejectButtonProps {
-    id: number;
-  tableRef: MutableRefObject<any>;
-  url:string;
-  status: string;
-//   text:string;
-//   confirmBtnText:string;
-//   payload:any;
-//   OnSuccess: (response: any) => void; 
-//   Icon:string
-//   Buttoncolor:string
-//   ButtonText:string
-//   CancelButton:string
+	id: number;
+	tableRef: MutableRefObject<any>;
+	url: string;
+	status: string;
+	canApprove?: boolean;
+	canReject?: boolean;
+	canCancel?: boolean;
 }
 
-const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({id,tableRef,url,status}) => {
-  const raw = String(status ?? '').trim().toLowerCase();
-  // Use API-valid statuses; keep legacy accepted/declined aliases for compatibility.
-  const isApproved = raw === 'approved' || raw === 'accepted';
-  const isRejected = raw === 'rejected' || raw === 'declined';
-  const isCancelled = raw === 'cancelled' || raw === 'canceled';
-  const isPending = !isApproved && !isRejected && !isCancelled;
+const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({
+	id,
+	tableRef,
+	url,
+	status,
+	canApprove,
+	canReject,
+	canCancel,
+}) => {
+	const raw = String(status ?? '').trim().toLowerCase();
+	// Use API-valid statuses; keep legacy accepted/declined aliases for compatibility.
+	const isApproved = raw === 'approved' || raw === 'accepted';
+	const isRejected = raw === 'rejected' || raw === 'declined';
+	const isCancelled = raw === 'cancelled' || raw === 'canceled';
+	const isApplied = raw === 'applied' || raw === 'pending';
+	const isPending = isApplied || (!isApproved && !isRejected && !isCancelled);
+
+	const useActionFlags =
+		canApprove !== undefined || canReject !== undefined || canCancel !== undefined;
+
+	const showApprove = useActionFlags
+		? Boolean(canApprove)
+		: isPending || isRejected || isCancelled;
+	const showReject = useActionFlags
+		? Boolean(canReject)
+		: isPending || isApproved || isCancelled;
+	const showCancel = useActionFlags
+		? Boolean(canCancel)
+		: isPending || isApproved || isRejected;
+
+	if (!showApprove && !showReject && !showCancel) {
+		return null;
+	}
 
   const onclickHandler = (nextStatus: 'APPROVED' | 'REJECTED' | 'CANCELLED') => {
 
@@ -67,7 +88,7 @@ const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({id,
 
   return (
     <div className='d-inline-flex flex-row flex-nowrap gap-1 align-items-center'>
-      {(isPending || isRejected || isCancelled) && (
+      {showApprove && (
         <Button
           isOutline={false}
           isLight
@@ -77,13 +98,13 @@ const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({id,
             'border-light': false,
           })}
           icon='Done'
-          onClick={()=>onclickHandler('APPROVED')}
+          onClick={() => onclickHandler('APPROVED')}
         >
           Approve
         </Button>
       )}
 
-      {(isPending || isApproved || isCancelled) && (
+      {showReject && (
         <Button
           isOutline={false}
           color='warning'
@@ -93,12 +114,12 @@ const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({id,
             'border-light': false,
           })}
           icon='Close'
-          onClick={()=>onclickHandler('REJECTED')}
+          onClick={() => onclickHandler('REJECTED')}
         >
           Reject
         </Button>
       )}
-      {(isPending || isApproved || isRejected) && (
+      {showCancel && (
         <Button
           isOutline={false}
           color='danger'
@@ -108,7 +129,7 @@ const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({id,
             'border-light': false,
           })}
           icon='Cancel'
-          onClick={()=>onclickHandler('CANCELLED')}
+          onClick={() => onclickHandler('CANCELLED')}
         >
           Cancel
         </Button>

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import classNames from 'classnames';
 import Chip from '@mui/material/Chip';
 import PendingActionsOutlinedIcon from '@mui/icons-material/PendingActionsOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -11,6 +10,7 @@ import { authAxios } from '../../axiosInstance';
 import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
 import useToasterNotification from '../../hooks/useToasterNotification';
 import { allRoutesObject } from '../../routes/RoutesMenu';
+import { buildLeaveRequestsTablePath } from '../LeaveManagement/LeaveRequest/leaveRequestTableNavigation';
 import { statusColorCodes } from '../../helpers/constants';
 import {
 	DASHBOARD_LEAVE_THEME,
@@ -43,6 +43,9 @@ export type RecentLeaveRequest = {
 };
 
 export type LeaveRequestsSummary = {
+	year?: number;
+	month?: number | null;
+	summary?: LeaveStatusCounts & { total?: number; total_requests?: number };
 	total_requests?: number;
 	total?: number;
 	total_counts?: LeaveStatusCounts;
@@ -51,6 +54,75 @@ export type LeaveRequestsSummary = {
 	leave_types?: LeaveTypeSummary[];
 	recent_requests?: RecentLeaveRequest[];
 	requests?: RecentLeaveRequest[];
+};
+
+const SUMMARY_META_KEYS = new Set(['total', 'total_requests']);
+
+const toCount = (value: unknown): number | null => {
+	if (typeof value === 'number' && !Number.isNaN(value)) return value;
+	if (typeof value === 'bigint') return Number(value);
+	if (typeof value === 'string' && value.trim() !== '') {
+		const parsed = Number(value);
+		if (!Number.isNaN(parsed)) return parsed;
+	}
+	return null;
+};
+
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+	value && typeof value === 'object' && !Array.isArray(value)
+		? (value as Record<string, unknown>)
+		: null;
+
+function normalizeStatusKey(status: string) {
+	return String(status || '')
+		.trim()
+		.toUpperCase()
+		.replace(/\s+/g, '_');
+}
+
+const extractStatusCounts = (source: Record<string, unknown>): LeaveStatusCounts => {
+	const counts: LeaveStatusCounts = {};
+	Object.entries(source).forEach(([key, value]) => {
+		if (SUMMARY_META_KEYS.has(key)) return;
+		const count = toCount(value);
+		if (count == null) return;
+		counts[normalizeStatusKey(key)] = count;
+	});
+	return counts;
+};
+
+const normalizeSummaryPayload = (raw: unknown): LeaveRequestsSummary | null => {
+	const wrapped = asRecord(raw);
+	if (!wrapped) return null;
+
+	const data = asRecord(wrapped.data) ?? wrapped;
+	const summaryBlock =
+		asRecord(data.summary) ?? asRecord(data.total_counts) ?? asRecord(data.counts);
+
+	const counts: LeaveStatusCounts = summaryBlock ? extractStatusCounts(summaryBlock) : {};
+	const nestedCounts = asRecord(data.total_counts) ?? asRecord(data.counts);
+	if (nestedCounts && nestedCounts !== summaryBlock) {
+		Object.assign(counts, extractStatusCounts(nestedCounts));
+	}
+
+	const total =
+		toCount(data.total) ??
+		toCount(data.total_requests) ??
+		(summaryBlock
+			? (toCount(summaryBlock.total) ?? toCount(summaryBlock.total_requests))
+			: null);
+
+	const typed = data as LeaveRequestsSummary;
+
+	return {
+		...typed,
+		total: total ?? undefined,
+		total_requests: total ?? undefined,
+		counts:
+			Object.keys(counts).length > 0 ? counts : typed.counts ?? typed.total_counts,
+		by_leave_type: typed.by_leave_type ?? typed.leave_types,
+		recent_requests: typed.recent_requests ?? typed.requests,
+	};
 };
 
 const LEAVE_STATUS_ORDER = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'] as const;
@@ -78,12 +150,6 @@ const leaveStatusTheme = (status: string): DashboardTone => {
 		fill: hex ? `${hex}59` : 'rgba(var(--bs-secondary-rgb), 0.35)',
 	};
 };
-
-const normalizeStatusKey = (status: string) =>
-	String(status || '')
-		.trim()
-		.toUpperCase()
-		.replace(/\s+/g, '_');
 
 const countFromMap = (counts: LeaveStatusCounts | undefined, key: string) => {
 	const v = counts?.[key];
@@ -138,40 +204,34 @@ type StatCardProps = {
 	value: number;
 	tone: DashboardTone;
 	icon: React.ReactNode;
+	to?: string;
 };
 
-const StatCard = ({ label, value, tone, icon }: StatCardProps) => (
-	<div className='hr-dashboard__stat-card' style={dashboardStatStyle(tone)}>
-		<div className='hr-dashboard__stat-icon'>{icon}</div>
-		<div className='hr-dashboard__stat-value'>{value}</div>
-		<div className='hr-dashboard__stat-label'>{label}</div>
-	</div>
-);
+const StatCard = ({ label, value, tone, icon, to }: StatCardProps) => {
+	const content = (
+		<>
+			<div className='hr-dashboard__stat-icon'>{icon}</div>
+			<div className='hr-dashboard__stat-value'>{value}</div>
+			<div className='hr-dashboard__stat-label'>{label}</div>
+		</>
+	);
 
-type ProgressRowProps = {
-	label: string;
-	value: number;
-	total: number;
-	tone: DashboardTone;
-};
+	if (!to) {
+		return (
+			<div className='hr-dashboard__stat-card' style={dashboardStatStyle(tone)}>
+				{content}
+			</div>
+		);
+	}
 
-const ProgressRow = ({ label, value, total, tone }: ProgressRowProps) => {
-	const pct = total > 0 ? Math.round((value / total) * 100) : 0;
 	return (
-		<div className='hr-dashboard__progress-row'>
-			<div className='hr-dashboard__progress-head'>
-				<span style={{ color: tone.color }}>{label}</span>
-				<span className='text-muted'>
-					{value} <span className='fw-normal'>({pct}%)</span>
-				</span>
-			</div>
-			<div className='hr-dashboard__progress-track'>
-				<div
-					className='hr-dashboard__progress-fill'
-					style={{ width: `${pct}%`, backgroundColor: tone.fill }}
-				/>
-			</div>
-		</div>
+		<Link
+			to={to}
+			className='hr-dashboard__stat-card hr-dashboard__stat-card--link'
+			style={dashboardStatStyle(tone)}
+			aria-label={`View ${label} in leave requests`}>
+			{content}
+		</Link>
 	);
 };
 
@@ -189,7 +249,7 @@ const DashboardLeaveRequestsSummary = () => {
 		authAxios
 			.get<LeaveRequestsSummary>('/api/hr/dashboard/leave-requests-summary/')
 			.then((res) => {
-				if (!cancelled) setSummary(res.data ?? null);
+				if (!cancelled) setSummary(normalizeSummaryPayload(res.data));
 			})
 			.catch((err) => {
 				if (!cancelled) {
@@ -225,26 +285,13 @@ const DashboardLeaveRequestsSummary = () => {
 	const leaveTypes = resolveLeaveTypes(summary);
 	const recentRequests = resolveRecentRequests(summary);
 
-	const statusKeys = [
-		...LEAVE_STATUS_ORDER,
-		...Object.keys(counts)
-			.map(normalizeStatusKey)
-			.filter((k) => k && !LEAVE_STATUS_ORDER.includes(k as (typeof LEAVE_STATUS_ORDER)[number])),
-	];
-
-	const statusRows = statusKeys.map((key) => ({
-		key,
-		label: LEAVE_STATUS_LABELS[key] ?? key.replace(/_/g, ' '),
-		value: countFromMap(counts, key),
-		theme: leaveStatusTheme(key),
-	}));
-
 	const statCards: StatCardProps[] = [
 		{
 			label: 'Total requests',
 			value: total,
 			tone: DASHBOARD_LEAVE_THEME.total,
 			icon: <PendingActionsOutlinedIcon />,
+			to: buildLeaveRequestsTablePath(),
 		},
 		...LEAVE_STATUS_ORDER.map((key) => ({
 			label: LEAVE_STATUS_LABELS[key] ?? key,
@@ -258,6 +305,7 @@ const DashboardLeaveRequestsSummary = () => {
 				) : (
 					<CancelOutlinedIcon />
 				),
+			to: buildLeaveRequestsTablePath({ status: key }),
 		})),
 	];
 
@@ -282,26 +330,11 @@ const DashboardLeaveRequestsSummary = () => {
 						))}
 					</div>
 
-					{total > 0 ? (
+					{leaveTypes.length > 0 ? (
 						<div className='row g-3 mb-4'>
-							<div className={classNames(leaveTypes.length > 0 ? 'col-lg-6' : 'col-12')}>
+							<div className='col-12'>
 								<div className='hr-dashboard__panel'>
-									<div className='hr-dashboard__panel-title'>By status</div>
-									{statusRows.map(({ key, label, value, theme }) => (
-										<ProgressRow
-											key={key}
-											label={label}
-											value={value}
-											total={total}
-											tone={theme}
-										/>
-									))}
-								</div>
-							</div>
-							{leaveTypes.length > 0 ? (
-								<div className='col-lg-6'>
-									<div className='hr-dashboard__panel'>
-										<div className='hr-dashboard__panel-title'>By leave type</div>
+									<div className='hr-dashboard__panel-title'>By leave type</div>
 										{leaveTypes.map((row, i) => {
 											const typeCounts = row.counts ?? {};
 											const typeTotal = leaveTypeTotal(row);
@@ -343,9 +376,8 @@ const DashboardLeaveRequestsSummary = () => {
 												</div>
 											);
 										})}
-									</div>
 								</div>
-							) : null}
+							</div>
 						</div>
 					) : null}
 

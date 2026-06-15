@@ -28,6 +28,7 @@ export type UserCrudModel = {
 	last_name: string;
 	gender: string;
 	dob: string;
+	joined_date?: string;
 	address: string;
 	state: string;
 	city: string;

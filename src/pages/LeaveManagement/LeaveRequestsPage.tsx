@@ -1,15 +1,40 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
-import SubHeader, { SubHeaderLeft } from '../../layout/SubHeader/SubHeader';
+import SubHeader, { SubHeaderLeft, SubHeaderRight } from '../../layout/SubHeader/SubHeader';
 import Card, { CardTitle } from '../../components/bootstrap/Card';
 import Page from '../../layout/Page/Page';
+import AddButton from '../../components/CustomComponent/Buttons/AddButton';
+import AuthContext from '../../contexts/authContext';
+import { isUserRole } from '../../helpers/roleToggleUtils';
 import LeaveRequests, { type LeaveTypeTableFilter } from './LeaveRequest/LeaveRequests';
+import AddLeaveRequest from './LeaveRequest/AddLeaveRequest';
+import {
+	leaveRequestUrlFiltersToSearchParams,
+	type LeaveRequestUrlFilters,
+} from './LeaveRequest/leaveRequestTableNavigation';
 
 const LeaveRequestsPage = () => {
+	const { userData } = useContext(AuthContext);
+	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
+	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
 	const tableRef = useRef(null);
 	const urlBackup = useRef('');
 	const [searchParams, setSearchParams] = useSearchParams();
+	const [isFormOpen, setIsFormOpen] = useState(false);
+	const [editId, setEditId] = useState<any>(null);
+	const showAddLeaveRequest = isUserRole(userData?.user_type) || mode === 'Self';
+
+	const openAddModal = () => {
+		setEditId(null);
+		setIsFormOpen(true);
+	};
+
+	const editModalToggle = (id: any) => {
+		setEditId(id);
+		setIsFormOpen(true);
+	};
 
 	const leaveTypeFilter = useMemo((): LeaveTypeTableFilter | null => {
 		const id = searchParams.get('leave_type');
@@ -23,26 +48,52 @@ const LeaveRequestsPage = () => {
 		};
 	}, [searchParams]);
 
-	const clearLeaveTypeFilter = () => {
-		setSearchParams({}, { replace: true });
+	const statusFilter = useMemo(() => {
+		const status = searchParams.get('status')?.trim().toUpperCase();
+		return status || null;
+	}, [searchParams]);
+
+	const dateFilter = useMemo(() => {
+		const date = searchParams.get('date')?.trim();
+		return date || null;
+	}, [searchParams]);
+
+	const syncUrlFilters = (filters: LeaveRequestUrlFilters) => {
+		setSearchParams(leaveRequestUrlFiltersToSearchParams(filters), { replace: true });
 	};
 
 	return (
 		<PageWrapper title='Leave Requests'>
+			{isFormOpen && (
+				<AddLeaveRequest
+					isOpen={isFormOpen}
+					setIsOpen={setIsFormOpen}
+					tableRef={tableRef}
+					title={editId ? 'Edit Leave Request' : 'Add Leave Request'}
+					id={editId}
+				/>
+			)}
 			<SubHeader>
 				<SubHeaderLeft>
 					<CardTitle tag='div' className='h5'>
 						Leave Requests
 					</CardTitle>
 				</SubHeaderLeft>
+				<SubHeaderRight>
+					{showAddLeaveRequest && (
+						<AddButton name='Add Leave Request' modalShow={openAddModal} />
+					)}
+				</SubHeaderRight>
 			</SubHeader>
 			<Page container='fluid'>
 				<LeaveRequests
 					tableRef={tableRef}
 					urlBackup={urlBackup}
-					editModalToggle={() => {}}
+					editModalToggle={editModalToggle}
 					leaveTypeFilter={leaveTypeFilter}
-					onClearLeaveTypeFilter={clearLeaveTypeFilter}
+					statusFilter={statusFilter}
+					dateFilter={dateFilter}
+					onUrlFiltersChange={syncUrlFilters}
 				/>
 			</Page>
 		</PageWrapper>

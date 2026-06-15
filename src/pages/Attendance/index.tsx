@@ -8,6 +8,7 @@ import ExportButton, { EXPORT_VARIANTS } from '../../components/CustomComponent/
 import AttendanceTable from './AttendanceTable';
 import AddAttendance from './AddAttendance';
 import AuthContext from '../../contexts/authContext';
+import { isPrivilegedToggleMode } from '../../helpers/roleToggleUtils';
 
 const Index = () => {
 	const { userData } = useContext(AuthContext);
@@ -20,6 +21,7 @@ const Index = () => {
 	const isUserRole = String(userData?.user_type || '').toLowerCase() === 'user';
 	const isAdminSelfMode = userData?.user_type === 'Admin' && mode === 'Self';
 	const showAddAttendance = isUserRole || isAdminSelfMode;
+	const showExport = isPrivilegedToggleMode(userData?.user_type, mode);
 
 	const openAddModal = (state: boolean) => {
 		if (state) setEditId(null);
@@ -54,11 +56,13 @@ const Index = () => {
 						{showAddAttendance && (
 							<AddButton modalShow={openAddModal} name='Add Attendance' />
 						)}
-						<ExportButton
-							url={urlBackup}
-							name='Attendance'
-							variant={EXPORT_VARIANTS.attendance}
-						/>
+						{showExport && (
+							<ExportButton
+								url={urlBackup}
+								name='Attendance'
+								variant={EXPORT_VARIANTS.attendance}
+							/>
+						)}
 					</SubHeaderRight>
 				</SubHeader>
 				<Card stretch>
