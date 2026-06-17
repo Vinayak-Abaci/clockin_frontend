@@ -101,7 +101,7 @@ const ShiftForm = ({ isOpen, setIsOpen, tableRef, title, id }: any) => {
 
 		setIsLoading(true);
 		authAxios
-			.get(`api/hr/shifts/${id}`)
+			.get(`api/hr/shifts/${id}/`)
 			.then((res) => {
 				const shift = res?.data || {};
 				setIsLoading(false);

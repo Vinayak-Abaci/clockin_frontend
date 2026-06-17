@@ -52,7 +52,7 @@ const AddGroup = ({ isOpen, setIsOpen, tableRef, title, id }: any) => {
 		const schedulesReq = authAxios.get('api/hr/schedules/?paginate=off');
 		const sitesReq = authAxios.get('api/hr/sites/?paginate=off');
 		const leaveTypesReq = authAxios.get('/api/hr/leave-types/?paginate=off');
-		const groupReq = isEdit ? authAxios.get(`api/hr/groups/${id}`) : Promise.resolve(null);
+		const groupReq = isEdit ? authAxios.get(`api/hr/groups/${id}/`) : Promise.resolve(null);
 
 		Promise.all([groupsReq, usersReq, schedulesReq, sitesReq, leaveTypesReq, groupReq])
 			.then(([groupsRes, usersRes, schedulesRes, sitesRes, leaveTypesRes, groupRes]: any) => {

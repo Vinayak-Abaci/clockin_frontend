@@ -47,7 +47,7 @@ const AddSite = ({ isOpen, setIsOpen, tableRef, title, id }: any) => {
 		const sitesReq = authAxios.get('api/hr/sites/?paginate=off');
 		const usersReq = authAxios.get('api/hr/accounts/?paginate=off');
 		const timezonesReq = authAxios.get('api/hr/timezones/?paginate=off');
-		const siteReq = isEdit ? authAxios.get(`api/hr/sites/${id}`) : Promise.resolve(null);
+		const siteReq = isEdit ? authAxios.get(`api/hr/sites/${id}/`) : Promise.resolve(null);
 
 		Promise.all([sitesReq, usersReq, timezonesReq, siteReq])
 			.then(([sitesRes, usersRes, timezonesRes, siteRes]: any) => {

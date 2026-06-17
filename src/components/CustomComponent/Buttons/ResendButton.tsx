@@ -31,7 +31,7 @@ const ResendButton: React.FC<ResendButtonProps> = ({  id }) => {
       confirmButtonText: 'Resend',
     }).then((result:any) => {
       if (result.isConfirmed) {
-        const url = `api/users/resend_invitation/${id}`;
+        const url = `api/users/resend_invitation/${id}/`;
         authAxios
           .put(url)
           .then(() =>{

@@ -28,7 +28,7 @@ const GroupDetailPage = () => {
 		let cancelled = false;
 		setLoading(true);
 		authAxios
-			.get(`api/hr/groups/${id}`)
+			.get(`api/hr/groups/${id}/`)
 			.then((res) => {
 				const g = res?.data ?? null;
 				if (cancelled) return;

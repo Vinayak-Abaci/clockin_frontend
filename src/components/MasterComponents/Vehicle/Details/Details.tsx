@@ -33,7 +33,7 @@ const VehicleDetails = () => {
 
     useEffect(() => {
        if(id){
-        const url = `api/vehicles/${id}`
+        const url = `api/vehicles/${id}/`
         authAxios.get(url)
         .then(response=>{
             reset({
@@ -69,7 +69,7 @@ const VehicleDetails = () => {
                         status: data?.status?.value,
                     },
               };	
-    const url = `api/vehicles/${id}`
+    const url = `api/vehicles/${id}/`
     authAxios
         .patch(url, payload)
         .then((response) => {

@@ -113,7 +113,7 @@ const ScheduleTableComponent = ({ tableRef, urlBackup, editModalToggle }: any) =
 					<div className='d-flex gap-1 justify-content-end'>
 						<EditButton modalShow={editModalToggle} id={rowData?.id} />
 						<DeleteButton
-							apiEndpoint={`api/hr/schedules/${rowData?.id}`}
+							apiEndpoint={`api/hr/schedules/${rowData?.id}/`}
 							tableRef={tableRef}
 							text='This schedule will be deleted.'
 						/>

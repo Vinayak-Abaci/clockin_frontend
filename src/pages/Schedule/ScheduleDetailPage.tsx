@@ -28,7 +28,7 @@ const ScheduleDetailPage = () => {
 		let cancelled = false;
 		setLoading(true);
 		authAxios
-			.get(`api/hr/schedules/${id}`)
+			.get(`api/hr/schedules/${id}/`)
 			.then((res) => {
 				if (!cancelled) setSchedule(res?.data ?? null);
 			})
@@ -51,7 +51,7 @@ const ScheduleDetailPage = () => {
 	const refreshScheduleQuietly = useCallback(() => {
 		if (!id) return;
 		authAxios
-			.get(`api/hr/schedules/${id}`)
+			.get(`api/hr/schedules/${id}/`)
 			.then((res) => setSchedule(res?.data ?? null))
 			.catch(showErrorNotification);
 	}, []);

@@ -28,7 +28,7 @@ const  Notifications: FC<any>=({isOpen,setIsOpen})=> {
   const tempCount = useSelector((state:any) => state.NotificationSlice.temp_count)
 
   const deleteHandler = (id:string) => {
-    const url = `api/zaair/app_notifications/${id}`
+    const url = `api/zaair/app_notifications/${id}/`
     authAxios.patch(url,{is_read:true})
     .then(() => dispatch(deleteReportNotification(id)))
     .catch(err => showNotification('Error',Error(err,setLogOut),'danger'))

@@ -46,7 +46,7 @@ const ScheduleForm = ({ isOpen, setIsOpen, tableRef, title, id }: any) => {
 		setIsLoading(true);
 
 		const shiftsReq = authAxios.get('api/hr/shifts/?paginate=off');
-		const scheduleReq = isEdit ? authAxios.get(`api/hr/schedules/${id}`) : Promise.resolve(null);
+		const scheduleReq = isEdit ? authAxios.get(`api/hr/schedules/${id}/`) : Promise.resolve(null);
 
 		Promise.all([shiftsReq, scheduleReq])
 			.then(([shiftsRes, scheduleRes]: any) => {

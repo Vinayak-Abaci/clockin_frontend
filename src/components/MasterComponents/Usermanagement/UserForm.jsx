@@ -33,7 +33,7 @@ const UserForm = ({ isOpen, setIsOpen, tableRef, id = null, title }) => {
 
 	useEffect(() => {
 		const sitesReq = authAxios.get('api/hr/sites/?paginate=off');
-		const userReq = id ? authAxios.get(`api/hr/users/${id}`) : Promise.resolve(null);
+		const userReq = id ? authAxios.get(`api/hr/users/${id}/`) : Promise.resolve(null);
 		const accountsParams = { paginate: 'off' };
 		const reportingManagersReq = authAxios.get('api/hr/accounts/', {
 			params: { ...accountsParams, user_type__role_name: 'Manager' },
@@ -145,7 +145,7 @@ const UserForm = ({ isOpen, setIsOpen, tableRef, id = null, title }) => {
 		};
 
 		setWaitingForAxios(true);
-		const url = id ? `api/users/${id}` : 'api/users';
+		const url = id ? `api/users/${id}/` : 'api/users';
 		const request = id ? authAxios.patch(url, payload) : authAxios.post(url, payload);
 
 		request

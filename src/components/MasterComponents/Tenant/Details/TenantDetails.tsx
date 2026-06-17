@@ -35,7 +35,7 @@ const TenantDetails = ({register,errors,control,getValues,watch,isLoading,handle
       global_access: data?.global_access || false
     };
 
-    const url = `api/tenants/${id}`
+    const url = `api/tenants/${id}/`
     authAxios
       .patch(url, payload)
       .then(() => {
