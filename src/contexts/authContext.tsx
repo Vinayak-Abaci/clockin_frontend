@@ -25,7 +25,8 @@ interface IAuthContextProviderProps {
 const isPublicAuthPath = (pathname: string) =>
 	pathname.includes('public') ||
 	pathname === '/login' ||
-	pathname === '/admin/login' ||
+	pathname === '/clockin-admin/login' ||
+	pathname === '/signup' ||
 	pathname === '/forgotpassword' ||
 	pathname === '/set-password';
 
@@ -40,7 +41,7 @@ const setLogOut = () => {
     const isPlatformAdminUser = userData?.is_platform_admin === true;
     // Keep Redux auth mode in sync with context logout.
     dispatch(setAuthLogOut());
-    navigate(isPlatformAdminUser ? '/admin/login' : '/login');
+    navigate(isPlatformAdminUser ? '/clockin-admin/login' : '/login');
     setUser('');
     setUserData({});
     Cookies.remove('socketIOToken');

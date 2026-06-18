@@ -21,7 +21,7 @@ import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
 import { getHomePathForUser } from '../../helpers/roleToggleUtils';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
 import Page from '../../layout/Page/Page';
-import Signup from './Signup';
+import Error from '../../helpers/Error';
 
 const Login = ({
 	loginApiUrl = 'api/users/login/',
@@ -31,24 +31,16 @@ const Login = ({
 }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const { setUser, setUserData,  } = useContext(AuthContext);
+	const { userData, setUser, setUserData } = useContext(AuthContext);
 	const { darkModeStatus } = useDarkMode();
 	const [signInPassword] = useState(false);
 	const [waitingForAxios, setWaitingForAxios] = useState(false);
-	const [isLoading, setIsLoading] = useState(true);
-	const [isSignUp, setIsSignUp] = useState(false);
-	const { userData } = useContext(AuthContext);
 
 	useEffect(() => {
-		if (userData !== null) {
-			if (Object.keys(userData).length === 0) {
-				setTimeout(() => setIsLoading(false), 2000);
-			} else {
-				navigate(getHomePathForUser(userData));
-			}
+		if (userData !== null && Object.keys(userData).length > 0) {
+			navigate(getHomePathForUser(userData));
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [userData]);
+	}, [userData, navigate]);
 
 	const formik = useFormik({
 		enableReinitialize: true,
@@ -59,7 +51,6 @@ const Login = ({
 		validate: (values) => {
 			const errors = {};
 			const emailError = validateEmail(values.loginUsername);
-			// console.log('emailError', emailError);
 			if (!values.loginUsername) {
 				errors.loginUsername = 'Required';
 			}
@@ -72,7 +63,6 @@ const Login = ({
 			}
 			return errors;
 		},
-		// validateOnChange: false,
 		onSubmit: (values) => {
 			handleSignin(values);
 		},
@@ -119,9 +109,6 @@ const Login = ({
 				setUserData({ ...enrichedUser });
 				setWaitingForAxios(false);
 				navigate(getHomePathForUser(enrichedUser));
-
-				// setIsLoading(false);
-				// updateToken(response.data?.tenants[0]);
 			})
 			.catch((error) => {
 				setWaitingForAxios(false);
@@ -129,7 +116,10 @@ const Login = ({
 				let errorMessage = null;
 				if (error.response?.status === 403) {
 					errorMessage = error?.response?.data?.detail;
-				} else {
+				}else if (error.response?.status === 400) {
+					errorMessage = Error(error, () => {});
+				}
+				else {
 					errorMessage = 'Error occured, please check your connection and try again!';
 				}
 				formik.setFieldError('loginPassword', errorMessage);
@@ -137,14 +127,11 @@ const Login = ({
 			});
 	};
 
-	if (isLoading) {
+	if (userData === null) {
 		return <AbaciLoader />;
 	}
 	return (
-		<PageWrapper
-			isProtected={false}
-			title={isSignUp ? 'Sign Up' : pageTitle}
-			className='p-0 bg-white'>
+		<PageWrapper isProtected={false} title={pageTitle} className='p-0 bg-white'>
 			<Page className='p-0' container={false}>
 				<div style={{ width: '100%', height: '100vh' }}>
 					<Container fluid className='p-0'>
@@ -160,148 +147,98 @@ const Login = ({
 								<div
 									className='authentication-page-content p-4 d-flex justify-content-center align-items-center min-vh-100'
 									style={{ overflowY: 'auto' }}>
-									<div className='' style={{ width: '80%' }}>
-										<div className='p-5'>
-											<div className='text-center'>
-												{/* <Link
-											to='/'
-											className={classNames(
-												'text-decoration-none  fw-bold display-2',
-												{
-													'text-dark': !darkModeStatus,
-													'text-light': darkModeStatus,
-												},
-											)}
-											aria-label='Facit'>
-											
-											<img src={LogoForLogin} alt='' height='70' />
-										</Link> */}
-												<img src={LogoForLogin} alt='' height='70' />
+									<div style={{ width: '80%' }}>
+										<div className='py-5'>
+											<div className='text-center mb-4'>
+												<img src={LogoForLogin} alt='Logo' height='70' />
 											</div>
-											<div
-												className={classNames('rounded-3', {
-													'bg-l10-dark': !darkModeStatus,
-													'bg-dark': darkModeStatus,
-												})}
-											/>
-											<div className='text-center h2 mt-4 mb-5'>
-												{isSignUp ? 'SIGN UP' : heading}
-											</div>
-											{isSignUp ? (
-												<Signup onSwitchToLogin={() => setIsSignUp(false)} />
-											) : (
-												<>
-													<form
-														className='row g-4'
+
+											<div className='text-center h2 mb-4'>{heading}</div>
+
+											<form
+												className='row g-4'
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														e.preventDefault();
+														formik.handleSubmit();
+													}
+												}}>
+												<div className='col-12'>
+													<FormGroup
+														id='loginUsername'
+														isFloating
+														label='Username'
+														className={classNames({
+															'd-none': signInPassword,
+														})}>
+														<Input
+															autoComplete='username'
+															value={formik.values.loginUsername}
+															isTouched={formik.touched.loginUsername}
+															invalidFeedback={formik.errors.loginUsername}
+															isValid={formik.isValid}
+															onChange={formik.handleChange}
+															onBlur={formik.handleBlur}
+															onFocus={() => {
+																formik.setErrors({});
+															}}
+														/>
+													</FormGroup>
+													<br />
+													<FormGroup id='loginPassword' isFloating label='Password'>
+														<Input
+															type='password'
+															autoComplete='current-password'
+															value={formik.values.loginPassword}
+															isTouched={formik.touched.loginPassword}
+															invalidFeedback={formik.errors.loginPassword}
+															isValid={formik.isValid}
+															onChange={formik.handleChange}
+															onBlur={formik.handleBlur}
+														/>
+													</FormGroup>
+												</div>
+												<div className='d-flex justify-content-end'>
+													<p
+														className='cursor-pointer user-select-none mb-0'
+														onClick={() => navigate('/forgotpassword')}
 														onKeyDown={(e) => {
-															if (e.key === 'Enter') {
-																e.preventDefault();
-																formik.handleSubmit();
+															if (e.key === 'Enter' || e.key === ' ') {
+																navigate('/forgotpassword');
 															}
-														}}>
-														<div className='col-12'>
-															<FormGroup
-																id='loginUsername'
-																isFloating
-																label='Username'
-																className={classNames({
-																	'd-none': signInPassword,
-																})}>
-																<Input
-																	autoComplete='username'
-																	value={formik.values.loginUsername}
-																	isTouched={formik.touched.loginUsername}
-																	invalidFeedback={formik.errors.loginUsername}
-																	isValid={formik.isValid}
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																	onFocus={() => {
-																		formik.setErrors({});
-																	}}
-																/>
-															</FormGroup>
-															<br />
-															<FormGroup
-																id='loginPassword'
-																isFloating
-																label='Password'>
-																<Input
-																	type='password'
-																	autoComplete='current-password'
-																	value={formik.values.loginPassword}
-																	isTouched={formik.touched.loginPassword}
-																	invalidFeedback={formik.errors.loginPassword}
-																	isValid={formik.isValid}
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																/>
-															</FormGroup>
-														</div>
-														<div className='d-flex justify-content-end'>
-															<p
-																className='cursor-pointer user-select-none mb-0'
-																onClick={() => navigate('/forgotpassword')}
-																onKeyDown={(e) => {
-																	if (e.key === 'Enter' || e.key === ' ') {
-																		navigate('/forgotpassword');
-																	}
-																}}
-																role='button'
-																tabIndex={0}>
-																Forgot password ?
-															</p>
-														</div>
+														}}
+														role='button'
+														tabIndex={0}>
+														Forgot password ?
+													</p>
+												</div>
 
-														<div className='col-12 mt-3 text-center'>
-															<Button
-																color='warning'
-																icon='Login'
-																className='py-2'
-																style={{ width: '150px' }}
-																isDisable={waitingForAxios}
-																onClick={formik.handleSubmit}>
-																{waitingForAxios ? <Spinner size='sm' /> : 'Login'}
-															</Button>
-														</div>
-													</form>
+												<div className='col-12 mt-3 text-center'>
+													<Button
+														color='warning'
+														icon='Login'
+														className='py-2'
+														style={{ width: '150px' }}
+														isDisable={waitingForAxios}
+														onClick={formik.handleSubmit}>
+														{waitingForAxios ? <Spinner size='sm' /> : 'Login'}
+													</Button>
+												</div>
+											</form>
 
-													{showSignup && (
-														<div className='text-center mt-4'>
-															<p className='mb-0'>
-																Don&apos;t have an account?{' '}
-																<button
-																	type='button'
-																	className='btn btn-link p-0 align-baseline'
-																	onClick={() => setIsSignUp(true)}>
-																	Sign up
-																</button>
-															</p>
-														</div>
-													)}
-												</>
+											{showSignup && (
+												<div className='text-center mt-4'>
+													<p className='mb-0'>
+														Don&apos;t have an account?{' '}
+														<button
+															type='button'
+															className='btn btn-link p-0 align-baseline'
+															onClick={() => navigate('/signup')}>
+															Sign up
+														</button>
+													</p>
+												</div>
 											)}
-
-											{/* <div className='text-center'>
-											<a
-												href='/'
-												className={classNames('text-decoration-none me-3', {
-													'link-light': singUpStatus,
-													'link-dark': !singUpStatus,
-												})}>
-												Privacy policy
-											</a>
-											<a
-												href='/'
-												className={classNames(
-													'link-light text-decoration-none',
-													{
-														'link-light': singUpStatus,
-														'link-dark': !singUpStatus,
-													},
-												)}>
-												Terms of use
-											</a>
-										</div> */}
 										</div>
 									</div>
 								</div>
@@ -322,4 +259,3 @@ Login.propTypes = {
 };
 
 export default Login;
-/* eslint-enable @typescript-eslint/no-use-before-define */

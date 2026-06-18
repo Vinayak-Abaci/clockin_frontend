@@ -1,6 +1,6 @@
 import fileDownload from 'js-file-download';
 import Cookies from 'js-cookie';
-import { baseURL } from './baseURL';
+import { getTenantApiBaseURL } from './baseURL';
 import { authAxios } from '../axiosInstance';
 import showNotification from '../components/extras/showNotification';
 
@@ -8,12 +8,8 @@ const fileDownloader = (value, type) => {
 	// console.log(value);
 	const tenant = Cookies.get('tenant');
 	const fileName = type ? value.split(`${type}/`)[1] : value.uploaded_file_name;
-	let prefixURL;
-	if (!import.meta.env.MODE || import.meta.env.MODE === 'development') {
-		prefixURL = `${baseURL}/clients/${tenant}`;
-	} else {
-		prefixURL = `${baseURL}/media/`;
-	}
+	const apiBase = getTenantApiBaseURL(tenant).replace(/\/$/, '');
+	const prefixURL = `${apiBase}/media/`;
 	const url = type
 		? `${prefixURL}${tenant}/${type}/${fileName}`
 		: `${prefixURL}${value.media_url}`;

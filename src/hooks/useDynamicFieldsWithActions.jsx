@@ -7,7 +7,7 @@ import { authAxios } from '../axiosInstance';
 import Image from '../assets/img/Noimage.png';
 // import fileDownloader from '../helpers/FileDownloader';
 import Avatar from '../components/Avatar';
-import { baseURL } from '../helpers/baseURL';
+import { getTenantApiBaseURL } from '../helpers/baseURL';
 import fileDownloader from '../helpers/FileDownloaderForDynamicFields';
 
 const useDynamicFieldsWithActions = ({
@@ -29,12 +29,8 @@ const useDynamicFieldsWithActions = ({
 	const [mounted, setMounted] = useState(false);
 	const tenant = Cookies.get('tenant');
 	const UrlCreator = (value) => {
-		let prefixURL;
-		if (!import.meta.env.MODE || import.meta.env.MODE === 'development') {
-			prefixURL = `${baseURL}/clients/`;
-		} else {
-			prefixURL = `${baseURL}/media/`;
-		}
+		const apiBase = getTenantApiBaseURL(tenant).replace(/\/$/, '');
+		const prefixURL = `${apiBase}/media/`;
 		if (typeof value === 'string') {
 			const imageData = JSON.parse(value);
 
