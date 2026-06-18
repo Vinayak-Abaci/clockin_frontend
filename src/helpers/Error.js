@@ -1,9 +1,12 @@
 function Error(error, setLogOut) {
+	console.log('error', error);
 	let errorMsg = '';
 	if (error?.response?.status === 400) {
 		if (error?.response?.data?.message) {
 			errorMsg = error.response.data.message;
-		} else if (error.response.data?.error) {
+		} else if (error?.response?.data?.error?.message) {
+			errorMsg = error.response.data.error.message;
+		} else if (typeof error.response.data?.error === 'string') {
 			errorMsg = error.response.data.error;
 		} else {
 			const errorKey = Object.keys(error?.response?.data)[0];

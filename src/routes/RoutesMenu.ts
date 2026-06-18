@@ -325,7 +325,13 @@ export const pagesNotInSideBar = {
 	adminLogin: {
 		id: 'adminLogin',
 		text: 'Admin Login',
-		path: '/admin/login',
+		path: '/clockin-admin/login',
+		icon: 'Login',
+	},
+	signup: {
+		id: 'signup',
+		text: 'Sign Up',
+		path: '/signup',
 		icon: 'Login',
 	},
 	Contact: {

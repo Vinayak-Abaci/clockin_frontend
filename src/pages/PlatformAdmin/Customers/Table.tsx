@@ -34,8 +34,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 	const handleClientStatus = useCallback(
 		(row: any, status: 'ACTIVE' | 'BLOCKED') => {
 			const isBlock = status === 'BLOCKED';
-			const displayName =
-				row?.name || row?.schema_name || row?.domain || row?.email || 'this customer';
+			const displayName = row?.name || row?.schema_name || row?.primary_domain || 'this customer';
 
 			Swal.fire({
 				title: isBlock ? 'Block customer?' : 'Activate customer?',
@@ -76,36 +75,14 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				render: (rowData: any) => rowData?.name || '----',
 			},
 			{
-				title: 'Email',
-				field: 'email',
-				render: (rowData: any) => rowData?.email || '----',
-			},
-			{
-				title: 'Admin Name',
-				field: 'first_name',
-				sorting: false,
-				render: (rowData: any) =>
-					`${rowData?.first_name || ''} ${rowData?.last_name || ''}`.trim() || '----',
-			},
-			{
 				title: 'Schema',
 				field: 'schema_name',
 				render: (rowData: any) => rowData?.schema_name || '----',
 			},
 			{
-				title: 'Domain',
-				field: 'domain',
-				render: (rowData: any) => rowData?.domain || '----',
-			},
-			{
-				title: 'Country',
-				field: 'country',
-				render: (rowData: any) => rowData?.country || '----',
-			},
-			{
-				title: 'Timezone',
-				field: 'timezone',
-				render: (rowData: any) => rowData?.timezone || '----',
+				title: 'Primary Domain',
+				field: 'primary_domain',
+				render: (rowData: any) => rowData?.primary_domain || '----',
 			},
 			{
 				title: 'Status',
@@ -117,10 +94,25 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				),
 			},
 			{
-				title: 'Created',
-				field: 'created_at',
+				title: 'On Trial',
+				field: 'on_trial',
+				render: (rowData: any) => (
+					<Badge color={rowData?.on_trial ? 'info' : 'secondary'} isLight>
+						{rowData?.on_trial ? 'Yes' : 'No'}
+					</Badge>
+				),
+			},
+			{
+				title: 'Paid Until',
+				field: 'paid_until',
 				render: (rowData: any) =>
-					Moments(rowData?.created_at || rowData?.approved_at, 'datetime') || '----',
+					rowData?.paid_until ? Moments(rowData.paid_until, 'date') : '----',
+			},
+			{
+				title: 'Created',
+				field: 'created_on',
+				render: (rowData: any) =>
+					rowData?.created_on ? Moments(rowData.created_on, 'date') : '----',
 			},
 			{
 				title: 'Actions',

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { baseURL } from './helpers/baseURL';
+import { baseURL, getTenantApiBaseURL } from './helpers/baseURL';
 import { AxiosTimeout } from './helpers/constants';
 import Cookies from 'js-cookie';
 
@@ -76,9 +76,7 @@ const getTenantName = (tenantValue) => {
 const getTenantScopedBaseURL = (tenantValue) => {
 	const cookieTenant = Cookies.get('tenant');
 	const tenantName = getTenantName(tenantValue) || getTenantName(cookieTenant);
-	if (!tenantName) return baseURL;
-	const normalizedBase = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-	return `${normalizedBase}/clients/${encodeURIComponent(tenantName)}`;
+	return getTenantApiBaseURL(tenantName);
 };
 
 export const updateToken = (newToken, tenant) => {

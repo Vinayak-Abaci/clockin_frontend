@@ -1,23 +1,15 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
-// import { useSearchParam } from 'react-use';
-// import Cookies from 'js-cookie';
-// import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { Col, Container, Row, Spinner } from 'reactstrap';
 import { useFormik } from 'formik';
+import { AnimatePresence, motion } from 'framer-motion';
 import LogoForLogin from '../../assets/LogoForLogin.png';
 import loginBackground from '../../assets/Home.jpg';
-// import FormGroup from '../../components/bootstrap/forms/FormGroup';
-// import Input from '../../components/bootstrap/forms/Input';
 import Button from '../../components/bootstrap/Button';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
 import Page from '../../layout/Page/Page';
-import useDarkMode from '../../hooks/useDarkMode';
 import AuthContext from '../../contexts/authContext';
 import { publicAxios } from '../../axiosInstance';
-// import { setLogOut } from '../../store/auth';
 import validateEmail from '../../helpers/emailValidator';
 import showNotification from '../../components/extras/showNotification';
 import Error from '../../helpers/Error';
@@ -25,9 +17,16 @@ import EnterEmailComponent from '../../components/ForgotPassword/EnterEmailCompo
 import EnterOtpComponent from '../../components/ForgotPassword/EnterOtpComponent';
 import ConfirmPassword from '../../components/ForgotPassword/ConfirmPassword';
 
+const EASE = [0.25, 0.46, 0.45, 0.94];
+
+const formVariants = {
+	initial: { opacity: 0, y: 12 },
+	animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE } },
+	exit: { opacity: 0, y: -8, transition: { duration: 0.18, ease: EASE } },
+};
+
 const ForgotPassword = () => {
 	const { setLogOut } = useContext(AuthContext);
-	const { darkModeStatus } = useDarkMode();
 	const [waitingForAxios, setWaitingForAxios] = useState(false);
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState('Enter email');
@@ -139,13 +138,6 @@ const ForgotPassword = () => {
 		'Confirm Password': <ConfirmPassword formik={formik} />,
 	};
 
-	useEffect(() => {
-		return () => {
-			setLogOut();
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
 	return (
 		<PageWrapper
 			isProtected={false}
@@ -163,31 +155,54 @@ const ForgotPassword = () => {
 								</div>
 							</Col>
 							<Col lg={4}>
-								<div className='authentication-page-content p-4 d-flex  justify-content-center align-items-center min-vh-100'>
-									<div className='' style={{ width: '80%' }}>
-										<div className='p-5'>
-											<div className='text-center'>
-												<img src={LogoForLogin} alt='' height='70' />
+								<div
+									className='authentication-page-content p-4 d-flex justify-content-center align-items-center min-vh-100'
+									style={{ overflowY: 'auto' }}>
+									<div style={{ width: '80%' }}>
+										<div className='py-5'>
+											<div className='text-center mb-4'>
+												<img src={LogoForLogin} alt='Logo' height='70' />
 											</div>
-											<div
-												className={classNames('rounded-3', {
-													'bg-l10-dark': !darkModeStatus,
-													'bg-dark': darkModeStatus,
-												})}
-											/>
-											<div className='text-center h2 mt-4 mb-5'>FORGOT PASSWORD</div>
-											<form className='row g-4' onSubmit={formik.handleSubmit}>
-												{Components[activeTab]}
 
-												<div className='col-12'>
-													<Button
-														color='warning'
-														className='w-100 py-3'
-														type='submit'>
-														{waitingForAxios ? <Spinner size='sm' /> : 'Continue'}
-													</Button>
-												</div>
-											</form>
+											<motion.div
+												layout
+												style={{ overflow: 'hidden' }}
+												transition={{ layout: { duration: 0.35, ease: EASE } }}>
+												<AnimatePresence mode='wait' initial={false}>
+													<motion.div
+														key={activeTab}
+														variants={formVariants}
+														initial='initial'
+														animate='animate'
+														exit='exit'>
+														<div className='text-center h2 mb-4'>FORGOT PASSWORD</div>
+														<form className='row g-4' onSubmit={formik.handleSubmit}>
+															{Components[activeTab]}
+
+															<div className='col-12'>
+																<Button
+																	color='warning'
+																	className='w-100 py-3'
+																	type='submit'>
+																	{waitingForAxios ? <Spinner size='sm' /> : 'Continue'}
+																</Button>
+															</div>
+														</form>
+													</motion.div>
+												</AnimatePresence>
+											</motion.div>
+
+											<div className='text-center mt-4'>
+												<p className='mb-0'>
+													Remember your password?{' '}
+													<button
+														type='button'
+														className='btn btn-link p-0 align-baseline'
+														onClick={() => navigate('/login')}>
+														Back to login
+													</button>
+												</p>
+											</div>
 										</div>
 									</div>
 								</div>

@@ -8,6 +8,7 @@ import AdminLogin from '../../pages/Auth/AdminLogin';
 import Registration from '../../pages/Auth/Registration';
 import ForgotPassword from '../../pages/Auth/ForgotPassword';
 import SetPassword from '../../pages/Auth/SetPassword';
+import Signup from '../../pages/Auth/Signup';
 import AuthContext from '../../contexts/authContext';
 import Unauthorized from '../../pages/PublicPages/Unauthorized';
 import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
@@ -28,7 +29,8 @@ const ContentRoutes = () => {
       const isPublicAuthPath =
         path.startsWith('/public') ||
         path === '/login' ||
-        path === '/admin/login' ||
+        path === '/clockin-admin/login' ||
+        path === '/signup' ||
         path === '/forgotpassword' ||
         path === '/set-password';
 
@@ -45,7 +47,8 @@ const ContentRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/clockin-admin/login" element={<AdminLogin />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/public/activation/:string" element={<Registration />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
       <Route path="/set-password" element={<SetPassword />} />
