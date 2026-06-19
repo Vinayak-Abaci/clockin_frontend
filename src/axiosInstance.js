@@ -1,7 +1,14 @@
 import axios from 'axios';
-import { baseURL, getTenantApiBaseURL } from './helpers/baseURL';
+import { baseURL, getTenantApiBaseURL, getTenantRequestHeaders } from './helpers/baseURL';
 import { AxiosTimeout } from './helpers/constants';
 import Cookies from 'js-cookie';
+
+const attachTenantHeader = (instance) => {
+	instance.interceptors.request.use((config) => {
+		Object.assign(config.headers, getTenantRequestHeaders());
+		return config;
+	});
+};
 
 export const publicAxios = axios.create({
 	baseURL,
@@ -52,6 +59,12 @@ const authAxiosFileUpload = axios.create({
 	},
 	withCredentials: true,
 });
+
+attachTenantHeader(publicAxios);
+attachTenantHeader(publicAxiosFileUpload);
+attachTenantHeader(authAxios);
+attachTenantHeader(authAxiosForCSV);
+attachTenantHeader(authAxiosFileUpload);
 
 const getTenantName = (tenantValue) => {
 	if (!tenantValue) return '';

@@ -18,7 +18,7 @@ import { getOS } from "../helpers/helpers"
 import steps, { styles } from "../steps"
 import AsideRoutes from "../layout/Aside/AsideRoutes"
 import { ToastCloseButton } from "../components/bootstrap/Toasts"
-import { baseURL } from "../helpers/baseURL";
+import { baseURL, getTenantRequestHeaders } from "../helpers/baseURL";
 
 
 axios.interceptors.request.use((request) => {
@@ -29,6 +29,7 @@ axios.interceptors.request.use((request) => {
     "content-type": "application/json",
     accept: "application/json",
     Authorization: `Bearer ${token}`,
+    ...getTenantRequestHeaders(),
   };
   request.withCredentials = true;
   return request;

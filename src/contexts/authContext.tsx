@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authAxios } from '../axiosInstance';
 import { setLogOut as setAuthLogOut } from '../store/auth';
+import { getDefaultAuthPath } from '../helpers/baseURL';
 
 
 export interface IAuthContextProps {
@@ -24,6 +25,7 @@ interface IAuthContextProviderProps {
 
 const isPublicAuthPath = (pathname: string) =>
 	pathname.includes('public') ||
+	pathname === '/' ||
 	pathname === '/login' ||
 	pathname === '/clockin-admin/login' ||
 	pathname === '/signup' ||
@@ -41,7 +43,7 @@ const setLogOut = () => {
     const isPlatformAdminUser = userData?.is_platform_admin === true;
     // Keep Redux auth mode in sync with context logout.
     dispatch(setAuthLogOut());
-    navigate(isPlatformAdminUser ? '/clockin-admin/login' : '/login');
+    navigate(isPlatformAdminUser ? '/clockin-admin/login' : getDefaultAuthPath());
     setUser('');
     setUserData({});
     Cookies.remove('socketIOToken');
@@ -62,7 +64,7 @@ const setLogOut = () => {
           setUser('');
           setUserData({});
           if (!isPublicAuthPath(location.pathname)) {
-            navigate('/login');
+            navigate(getDefaultAuthPath());
           }
           return;
         }

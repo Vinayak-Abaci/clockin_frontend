@@ -417,7 +417,7 @@ const Signup = () => {
 												</form>
 											)}
 
-											<div className='text-center mt-4'>
+											{/* <div className='text-center mt-4'>
 												<p className='mb-0'>
 													Already have an account?{' '}
 													<button
@@ -427,7 +427,7 @@ const Signup = () => {
 														Login
 													</button>
 												</p>
-											</div>
+											</div> */}
 										</div>
 									</div>
 								</div>
