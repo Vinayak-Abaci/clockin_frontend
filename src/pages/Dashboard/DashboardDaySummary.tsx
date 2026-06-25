@@ -551,7 +551,7 @@ const DashboardDaySummary = ({ scheduleId }: Props) => {
 						))}
 					</div>
 
-					<div className='row g-3 mb-4'>
+					{/* <div className='row g-3 mb-4'>
 						<div className='col-lg-7'>
 							<div className='hr-dashboard__panel'>
 								<div className='hr-dashboard__panel-title'>Attendance breakdown</div>
@@ -603,7 +603,7 @@ const DashboardDaySummary = ({ scheduleId }: Props) => {
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> */}
 
 					{isScheduleView && scheduleDetail ? (
 						<>

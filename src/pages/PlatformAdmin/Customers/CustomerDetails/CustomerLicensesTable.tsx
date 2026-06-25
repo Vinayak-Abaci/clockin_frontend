@@ -85,7 +85,7 @@ const CustomerLicensesTable = ({ licenses = [] }: CustomerLicensesTableProps) =>
 	return (
 		<Card stretch className='w-100'>
 			<CardHeader borderSize={1}>
-				<CardLabel icon='CardMembership' iconColor='info'>
+				<CardLabel icon='CardMembership' iconColor='warning'>
 					<CardTitle tag='div' className='h5'>
 						Licenses
 					</CardTitle>

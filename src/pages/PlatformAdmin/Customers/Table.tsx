@@ -101,17 +101,22 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				),
 			},
 			{
-				title: 'Paid Until',
-				field: 'paid_until',
-				render: (rowData: any) =>
-					rowData?.paid_until ? Moments(rowData.paid_until, 'date') : '----',
+				title: 'Created By',
+				field: 'created_by_email',
+				render: (rowData: any) => rowData?.created_by?.first_name || '----',
 			},
 			{
-				title: 'Created',
-				field: 'created_on',
+				title: 'Created At',
+				field: 'created_at',
 				filtering: false,
 				render: (rowData: any) =>
-					rowData?.created_on ? Moments(rowData.created_on, 'date') : '----',
+					rowData?.created_at ? Moments(rowData.created_at, 'datetime') : '----',
+			},
+			{
+				title: 'Modified At',
+				field: 'modified_at',
+				filtering: false,
+				render: (rowData: any) => Moments(rowData?.modified_at, 'datetime') || '----',
 			},
 			{
 				title: 'Actions',

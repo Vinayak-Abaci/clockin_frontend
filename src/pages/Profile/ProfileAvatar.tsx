@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Spinner } from 'reactstrap';
 import Card, {
 	CardBody,
@@ -9,15 +9,17 @@ import AuthContext from '../../contexts/authContext';
 import ImageCropper from '../../helpers/imageCropper';
 import Icon from '../../components/icon/Icon';
 import { authAxiosFileUpload } from '../../axiosInstance';
-import Avatar from '../../components/Avatar';
 import base64toFile from '../../helpers/base64toFile';
 import useToasterNotification from '../../hooks/useToasterNotification';
 import useUserAvatarSrc from '../../hooks/useUserAvatarSrc';
+import { resolveUserAvatarSource } from '../../helpers/functions';
 
+const AVATAR_SIZE = 200;
 
 const ProfileAvatar = () => {
 	const [image, setImage] = useState(null)
 	const [waitingForAxios, setWaitingForAxios] = useState(false)
+	const [imgError, setImgError] = useState(false)
 	const { userData, setUserData } = useContext(AuthContext);
 	const { showErrorNotification } = useToasterNotification()
 	const updateAvatar = (croppedBase64: string) => {
@@ -61,8 +63,13 @@ const ProfileAvatar = () => {
 	};
 	const resolvedAvatarSrc = useUserAvatarSrc(userData, Profile);
 	const avatarSrc = image || resolvedAvatarSrc;
+	const hasUploadedAvatar = Boolean(image || resolveUserAvatarSource(userData));
+	const showPlaceholder = !hasUploadedAvatar || imgError;
+	const displaySrc = showPlaceholder ? Profile : avatarSrc;
 
-
+	useEffect(() => {
+		setImgError(false);
+	}, [userData?.avatar, userData?.avatar_url, image]);
 
 	return (
 		<Card className='shadow-3d-info prevent-userselect'>
@@ -85,7 +92,31 @@ const ProfileAvatar = () => {
 						}
 					</div>
 
-					<Avatar srcSet={avatarSrc} src={avatarSrc} size={200} />
+					<div
+						className='rounded-circle overflow-hidden bg-l25-secondary border border-2 border-light'
+						style={{
+							width: AVATAR_SIZE,
+							height: AVATAR_SIZE,
+							minWidth: AVATAR_SIZE,
+							minHeight: AVATAR_SIZE,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}>
+						<img
+							src={displaySrc}
+							alt='Profile avatar'
+							width={AVATAR_SIZE}
+							height={AVATAR_SIZE}
+							onError={() => setImgError(true)}
+							style={{
+								width: '100%',
+								height: '100%',
+								objectFit: showPlaceholder ? 'contain' : 'cover',
+								padding: showPlaceholder ? '22%' : 0,
+							}}
+						/>
+					</div>
 				</div>
 				{/* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
 

@@ -78,7 +78,7 @@ const MyProfile = () => {
 	return (
 		<Card className='prevent-userselect shadow-3d-info'>
 			<CardHeader>
-				<CardLabel icon='Description' iconColor='success'>
+				<CardLabel icon='Description' iconColor='warning'>
 					<CardTitle tag='div' className='h3'>
 						My Profile
 					</CardTitle>

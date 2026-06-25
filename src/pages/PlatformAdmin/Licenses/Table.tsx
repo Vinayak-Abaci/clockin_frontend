@@ -140,6 +140,23 @@ const LicensesTable = ({ tableRef, urlBackup }: any) => {
 				),
 			},
 			{
+				title: 'Created By',
+				field: 'created_by_email',
+				render: (rowData: any) => rowData?.created_by?.first_name  || '----',
+			},
+			{
+				title: 'Created At',
+				field: 'created_at',
+				filtering: false,
+				render: (rowData: any) => Moments(rowData?.created_at, 'datetime') || '----',
+			},
+			{
+				title: 'Modified At',
+				field: 'modified_at',
+				filtering: false,
+				render: (rowData: any) => Moments(rowData?.modified_at, 'datetime') || '----',
+			},
+			{
 				title: 'Actions',
 				align: 'right' as const,
 				removable: false,

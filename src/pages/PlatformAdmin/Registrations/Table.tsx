@@ -109,14 +109,15 @@ const RegistrationsTable = ({ tableRef, urlBackup }: any) => {
 				),
 			},
 			{
-				title: 'Submitted',
-				field: 'submitted_at',
-				render: (rowData: any) => Moments(rowData?.submitted_at, 'datetime') || '----',
-			},
-			{
 				title: 'Reviewed By',
 				field: 'reviewed_by_email',
 				render: (rowData: any) => rowData?.reviewed_by_email || '----',
+			},
+			{
+				title: 'Submitted',
+				field: 'submitted_at',
+				filtering: false,
+				render: (rowData: any) => Moments(rowData?.submitted_at, 'datetime') || '----',
 			},
 			{
 				title: 'Actions',

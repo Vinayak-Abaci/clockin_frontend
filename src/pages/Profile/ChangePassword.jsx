@@ -79,9 +79,9 @@ const ChangePassword = () => {
 	};
 
 	return (
-		<Card stretch className='prevent-userselect shadow-3d-info'>
+		<Card className='prevent-userselect shadow-3d-info'>
 			<CardHeader>
-				<CardLabel icon='Lock' iconColor='success'>
+				<CardLabel icon='Lock' iconColor='warning'>
 					<CardTitle tag='div' className='h3'>
 						Change Password
 					</CardTitle>

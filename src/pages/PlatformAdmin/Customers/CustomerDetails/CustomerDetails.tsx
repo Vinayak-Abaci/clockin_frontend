@@ -83,7 +83,7 @@ const CustomerDetails = ({ customer }: CustomerDetailsProps) => {
 	return (
 		<Card stretch className='w-100 mb-0 shadow-sm'>
 			<CardHeader borderSize={1}>
-				<CardLabel icon='Business' iconColor='info'>
+				<CardLabel icon='Business' iconColor='warning'>
 					<CardTitle tag='div' className='h5 mb-0'>
 						{String(customer?.name || 'Customer')}
 					</CardTitle>
@@ -92,7 +92,7 @@ const CustomerDetails = ({ customer }: CustomerDetailsProps) => {
 			<CardBody className='pt-3'>
 				<div className='row g-4'>
 					<div className='col-12 col-lg-6'>
-						<DetailSection icon='Business' iconColor='info' title='Company Details'>
+						<DetailSection icon='Business' iconColor='primary' title='Company Details'>
 							<div className='row g-1'>
 								<DetailRow label='Company Name' value={customer?.name as string} />
 								<DetailRow label='Schema' value={customer?.schema_name as string} />
