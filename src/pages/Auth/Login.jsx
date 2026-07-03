@@ -85,15 +85,17 @@ const Login = ({
 					...userPayload,
 					is_platform_admin:
 						responseData?.is_platform_admin ?? userPayload?.is_platform_admin ?? false,
+					is_platform_partner: responseData?.is_platform_partner ?? userPayload?.is_platform_partner ?? false,
 				};
 				const isPlatformAdminUser = enrichedUser.is_platform_admin === true;
+				const isPlatformPartnerUser = enrichedUser.is_platform_partner === true;
 
 				const tenant = responseData?.tenant ?? responseData?.tenants?.[0];
 				const tenantName =
 					(typeof tenant === 'object' && (tenant?.schema_name || tenant?.tenant_name || tenant?.domain)) ||
 					tenant;
 
-				if (isPlatformAdminUser) {
+				if (isPlatformAdminUser || isPlatformPartnerUser) {
 					Cookies.remove('tenant');
 				} else if (tenantName !== undefined && tenantName !== null) {
 					Cookies.set('tenant', String(tenantName));
@@ -102,7 +104,7 @@ const Login = ({
 				const token = responseData?.access ?? responseData?.token ?? Cookies.get('token');
 				if (token) {
 					Cookies.set('token', token);
-					updateToken(token, isPlatformAdminUser ? null : tenantName);
+					updateToken(token, isPlatformAdminUser || isPlatformPartnerUser ? null : tenantName);
 				}
 
 				setUser(enrichedUser?.email ?? values.loginUsername);

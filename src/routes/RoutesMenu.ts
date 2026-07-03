@@ -45,6 +45,10 @@ export const allRoutesObject = {
 		id: 'Customers',
 		path: '/customers',
 	},
+	Partners: {
+		id: 'Partners',
+		path: '/partners',
+	},
 	Licenses: {
 		id: 'Licenses',
 		path: '/licenses',
@@ -269,6 +273,27 @@ export const PlatformAdminRoutes = {
 		path: '/customers',
 		icon: 'Business',
 	},
+	Partners: {
+		id: 'Partners',
+		text: 'Partners',
+		path: '/partners',
+		icon: 'Groups',
+	},
+	Licenses: {
+		id: 'Licenses',
+		text: 'Licenses',
+		path: '/licenses',
+		icon: 'CardMembership',
+	},
+};
+
+export const PartnerRoutes = {
+	Customers: {
+		id: 'Customers',
+		text: 'Customers',
+		path: '/customers',
+		icon: 'Business',
+	},
 	Licenses: {
 		id: 'Licenses',
 		text: 'Licenses',
@@ -288,6 +313,7 @@ export const roleWiseRoutes: Record<string, any> = {
 	user: UserRoutes,
 	User: UserRoutes,
 	platform_admin: PlatformAdminRoutes,
+	partner: PartnerRoutes,
 };
 
 	
@@ -335,6 +361,12 @@ export const pagesNotInSideBar = {
 		path: '/customer-details/:id',
 		icon: '',
 	},
+	PartnerDetails: {
+		id: 'PartnerDetails',
+		text: 'Partner Details',
+		path: '/partner-details/:id',
+		icon: '',
+	},
 
 	Profile: {
 		id: 'Profile',
@@ -352,6 +384,12 @@ export const pagesNotInSideBar = {
 		id: 'adminLogin',
 		text: 'Admin Login',
 		path: '/clockin-admin/login',
+		icon: 'Login',
+	},
+	partnerLogin: {
+		id: 'partnerLogin',
+		text: 'Partner Login',
+		path: '/clockin-partner/login',
 		icon: 'Login',
 	},
 	signup: {

@@ -76,7 +76,7 @@ const SpecialDaysTable = ({ tableRef, urlBackup, editModalToggle }: any) => {
 					<div className='d-flex gap-1 justify-content-end'>
 						<EditButton modalShow={editModalToggle} id={rowData?.id} />
 						<DeleteButton
-							apiEndpoint={`api/hr/special-periods/${rowData?.id}`}
+							apiEndpoint={`api/hr/special-periods/${rowData?.id}/`}
 							tableRef={tableRef}
 							text='This special day will be deleted.'
 						/>

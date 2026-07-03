@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MaterialTable from '@material-table/core';
 import { ThemeProvider } from '@mui/material/styles';
@@ -15,32 +15,24 @@ import useToasterNotification from '../../../hooks/useToasterNotification';
 import Moments from '../../../helpers/Moment';
 import { buttonColor } from '../../../helpers/constants';
 import { swalFire } from '../../../helpers/swalHelper';
-import { isPlatformPartner } from '../../../helpers/roleToggleUtils';
-import AuthContext from '../../../contexts/authContext';
 
-const CLIENT_STATUS_ACTION_ENDPOINT = {
-	ACTIVE: 'unblock',
-	BLOCKED: 'block',
-} as const;
-
-const CustomersTable = ({ tableRef, urlBackup }: any) => {
+const PartnersTable = ({ tableRef, urlBackup }: any) => {
 	const navigate = useNavigate();
 	const [filterEnabled, setFilterEnabled] = useState(false);
-	const [pageSize, setPageSize] = useState(5);
+	const [pageSize, setPageSize] = useState(10);
 	const [sortState, setSortState] = useState({ orderBy: null, orderDirection: 'asc' });
 	const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
 	const [resendUpdatingId, setResendUpdatingId] = useState<number | null>(null);
 	const { theme, rowStyles, headerStyles } = useTablestyle();
 	const { showErrorNotification, showSuccessNotification } = useToasterNotification();
-	const { userData } = useContext(AuthContext);
-	const partnerUser = isPlatformPartner(userData);
-	const handleClientStatus = useCallback(
+
+	const handlePartnerStatus = useCallback(
 		(row: any, status: 'ACTIVE' | 'BLOCKED') => {
 			const isBlock = status === 'BLOCKED';
-			const displayName = row?.name || row?.schema_name || row?.primary_domain || 'this customer';
+			const displayName = row?.name || row?.schema_name || row?.primary_domain || 'this partner';
 
 			swalFire({
-				title: isBlock ? 'Block customer?' : 'Activate customer?',
+				title: isBlock ? 'Block partner?' : 'Activate partner?',
 				text: isBlock
 					? `Block ${displayName}? They will not be able to access the platform.`
 					: `Activate ${displayName}? They will regain access to the platform.`,
@@ -53,17 +45,16 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				if (!result.isConfirmed || !row?.id) return;
 
 				setStatusUpdatingId(row.id);
-				const action = CLIENT_STATUS_ACTION_ENDPOINT[status];
 				authAxios
-					.post(`api/customers/clients/${row.id}/${action}/`, { status })
+					.patch(`api/partners/${row.id}/`, { status })
 					.then((response) => {
 						tableRef?.current?.onQueryChange?.();
 						const message =
 							response?.data?.message ||
 							response?.data?.detail ||
 							(isBlock
-								? 'Customer blocked successfully.'
-								: 'Customer activated successfully.');
+								? 'Partner blocked successfully.'
+								: 'Partner activated successfully.');
 						showSuccessNotification(message);
 					})
 					.catch((error) => showErrorNotification(error))
@@ -75,8 +66,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 
 	const handleResendInvite = useCallback(
 		(row: any) => {
-			const displayName =
-				row?.name || row?.schema_name || row?.primary_domain || 'this customer';
+			const displayName = row?.name || row?.email || 'this partner';
 
 			swalFire({
 				title: 'Resend invite?',
@@ -88,9 +78,10 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				confirmButtonText: 'Resend',
 			}).then((result) => {
 				if (!result.isConfirmed || !row?.id) return;
+
 				setResendUpdatingId(row.id);
 				authAxios
-					.post(`api/customers/clients/${row.id}/resend-invite/`)
+					.post(`api/partners/${row.id}/resend-invite/`)
 					.then((response) => {
 						const message =
 							response?.data?.message ||
@@ -113,14 +104,9 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				render: (rowData: any) => rowData?.name || '----',
 			},
 			{
-				title: 'Schema',
-				field: 'schema_name',
-				render: (rowData: any) => rowData?.schema_name || '----',
-			},
-			{
-				title: 'Primary Domain',
-				field: 'primary_domain',
-				render: (rowData: any) => rowData?.primary_domain || '----',
+				title: 'Email',
+				field: 'email',
+				render: (rowData: any) => rowData?.email || '----',
 			},
 			{
 				title: 'Status',
@@ -142,15 +128,6 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 					</Badge>
 				),
 			},
-			...(partnerUser
-				? []
-				: [
-						{
-							title: 'Partner',
-							field: 'partner',
-							render: (rowData: any) => rowData?.partner?.name || '----',
-						},
-					]),
 			{
 				title: 'Created By',
 				field: 'created_by_email',
@@ -181,7 +158,6 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 
 					return (
 						<div className='d-flex align-items-center justify-content-end gap-2'>
-							{rowStatus !== 'ACTIVE' ? (
 								<Tooltip arrow title='Resend invite' placement='top'>
 									<span className='d-inline-flex'>
 										<Button
@@ -202,9 +178,8 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 										/>
 									</span>
 								</Tooltip>
-							) : null}
 							{rowStatus === 'ACTIVE' || rowStatus === 'INACTIVE' ? (
-								<Tooltip arrow title='Block customer' placement='top'>
+								<Tooltip arrow title='Block partner' placement='top'>
 									<span className='d-inline-flex'>
 										<Button
 											type='button'
@@ -219,14 +194,14 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 											onClick={(e: React.MouseEvent) => {
 												e.preventDefault();
 												e.stopPropagation();
-												handleClientStatus(rowData, 'BLOCKED');
+												handlePartnerStatus(rowData, 'BLOCKED');
 											}}
 										/>
 									</span>
 								</Tooltip>
 							) : null}
 							{rowStatus === 'BLOCKED' ? (
-								<Tooltip arrow title='Activate customer' placement='top'>
+								<Tooltip arrow title='Activate partner' placement='top'>
 									<span className='d-inline-flex'>
 										<Button
 											type='button'
@@ -241,7 +216,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 											onClick={(e: React.MouseEvent) => {
 												e.preventDefault();
 												e.stopPropagation();
-												handleClientStatus(rowData, 'ACTIVE');
+												handlePartnerStatus(rowData, 'ACTIVE');
 											}}
 										/>
 									</span>
@@ -252,7 +227,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 				},
 			},
 		],
-		[handleClientStatus, handleResendInvite, resendUpdatingId, statusUpdatingId],
+		[handlePartnerStatus, handleResendInvite, resendUpdatingId, statusUpdatingId],
 	);
 
 	return (
@@ -265,7 +240,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 					tableRef={tableRef}
 					//@ts-ignore
 					onRowClick={(_e: React.MouseEvent, rowData: any) => {
-						if (rowData?.id != null) navigate(`/customer-details/${rowData.id}`);
+						if (rowData?.id != null) navigate(`/partner-details/${rowData.id}`);
 					}}
 					//@ts-ignore
 					onOrderChange={(orderBy, orderDirection) => {
@@ -281,7 +256,7 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 										? `&ordering=-${String(query.orderBy?.field)}`
 										: `&ordering=${String(query.orderBy?.field)}`;
 							}
-							const url = `api/customers/clients/?limit=${query.pageSize}&offset=${
+							const url = `api/partners/?limit=${query.pageSize}&offset=${
 								query.pageSize * query.page
 							}&search=${encodeURIComponent(query.search || '')}${orderBy}&${otherFilters}`;
 
@@ -325,10 +300,10 @@ const CustomersTable = ({ tableRef, urlBackup }: any) => {
 };
 
 /* eslint-disable react/forbid-prop-types */
-CustomersTable.propTypes = {
+PartnersTable.propTypes = {
 	tableRef: PropTypes.object.isRequired,
 	urlBackup: PropTypes.object.isRequired,
 };
 /* eslint-enable react/forbid-prop-types */
 
-export default CustomersTable;
+export default PartnersTable;

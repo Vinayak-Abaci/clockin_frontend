@@ -8,6 +8,7 @@ import MainHeader from '../layout/Header/MainHeader';
 const headers: RouteProps[] = [
 	{ path: pagesNotInSideBar.login.path, element: null },
 	{ path: pagesNotInSideBar.adminLogin.path, element: null },
+	{ path: pagesNotInSideBar.partnerLogin.path, element: null },
 	{ path: pagesNotInSideBar.signup.path, element: null },
 	{ path: pagesNotInSideBar.Register.path, element: null },
 	{ path: pagesNotInSideBar.ForgotPassword.path, element: null },

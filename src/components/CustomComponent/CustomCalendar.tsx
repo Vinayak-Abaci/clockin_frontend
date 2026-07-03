@@ -61,6 +61,10 @@ const CustomCalendar = ({
 
 	const EventContent = ({ event }: any) => {
 		const text = String(event?.title || '');
+		const lines = text.split('\n').filter(Boolean);
+		const [primary, ...detailLines] = lines;
+		const detail = detailLines.join(' · ');
+
 		if (event?.resource?.kind === 'shift') {
 			const accent = String(event?.color || '#495057');
 			return (
@@ -68,28 +72,18 @@ const CustomCalendar = ({
 					className='rbc-shift-event-card'
 					title={text.replace(/\n/g, ' ')}
 					style={{
-						display: 'block',
-						whiteSpace: 'pre-line',
-						wordBreak: 'break-word',
-						lineHeight: 1.25,
-						background: statusColorLightBackground(accent),
+						background: statusColorLightBackground(accent, '28'),
 						color: accent,
-						borderRadius: 2,
-						padding: '2px 5px',
-						border: 'none',
-						fontSize: '0.68rem',
-						fontWeight: 600,
-						boxShadow: 'none',
 					}}>
-					{text}
+					{primary && <span className='rbc-shift-event-card__name'>{primary}</span>}
+					{detail && <span className='rbc-shift-event-card__detail'>{detail}</span>}
 				</span>
 			);
 		}
 		return (
-			<span
-				title={text.replace(/\n/g, ' ')}
-				style={{ whiteSpace: 'pre-line', wordBreak: 'break-word', lineHeight: 1.25 }}>
-				{text}
+			<span className='rbc-status-event-card' title={text.replace(/\n/g, ' ')}>
+				{primary && <span className='rbc-status-event-card__primary'>{primary}</span>}
+				{detail && <span className='rbc-status-event-card__detail'>{detail}</span>}
 			</span>
 		);
 	};

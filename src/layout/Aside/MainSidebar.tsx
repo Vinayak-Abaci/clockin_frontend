@@ -6,8 +6,8 @@ import User from '../User/User';
 import ThemeContext from '../../contexts/themeContext';
 import Aside, { AsideBody, AsideFoot, AsideHead } from './Aside';
 import AuthContext from '../../contexts/authContext';
-import { SelfRoutes, PlatformAdminRoutes, roleWiseRoutes } from '../../routes/RoutesMenu';
-import { isPlatformAdmin, isSelfEquivalentMode, resolveUserTypeString } from '../../helpers/roleToggleUtils';
+import { SelfRoutes, PlatformAdminRoutes, PartnerRoutes, roleWiseRoutes } from '../../routes/RoutesMenu';
+import { isPlatformPartner, isPlatformAdmin, isSelfEquivalentMode, resolveUserTypeString } from '../../helpers/roleToggleUtils';
 
 const MainSidebar = () => {
 	const { userData } = useContext(AuthContext);
@@ -18,9 +18,11 @@ const MainSidebar = () => {
 
 	const navigationMenu = isPlatformAdmin(userData)
 		? PlatformAdminRoutes
-		: isSelfEquivalentMode(userData?.user_type, mode)
-			? SelfRoutes
-			: roleWiseRoutes[role] || roleWiseRoutes.Admin || {};
+		: isPlatformPartner(userData)
+			? PartnerRoutes
+			: isSelfEquivalentMode(userData?.user_type, mode)
+				? SelfRoutes
+				: roleWiseRoutes[role] || roleWiseRoutes.Admin || {};
 
 	return (
 		<Aside >

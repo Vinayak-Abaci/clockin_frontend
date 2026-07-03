@@ -380,8 +380,14 @@ const ReusableScheduleCalendar = ({
 
 		if (ct === 'user') {
 			const attStatus = resolveAttendanceStatus(row);
+			const dayStatus = resolveMainDayStatus(row);
 			const attMeta = getStatusMeta(attStatus);
-			if (attMeta) {
+			// Skip when attendance.status duplicates the day-level status (shown by Status event).
+			const isDuplicateDayStatus =
+				attStatus != null &&
+				dayStatus != null &&
+				normalizeStatusKey(attStatus) === normalizeStatusKey(dayStatus);
+			if (attMeta && !isDuplicateDayStatus) {
 				let label = attMeta.label;
 				if (isAttendanceLate(row, ct)) label = `${label} (Late)`;
 				lines.push(label);
@@ -666,7 +672,7 @@ const ReusableScheduleCalendar = ({
 										backgroundColor: 'transparent',
 										border: 'none',
 										boxShadow: 'none',
-										padding: '1px 2px',
+										padding: '2px 3px',
 										pointerEvents: 'none',
 									},
 								};

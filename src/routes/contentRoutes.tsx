@@ -30,6 +30,8 @@ const MAINROUTE={
 	Customers: lazy(() => import('../pages/PlatformAdmin/Customers/index')),
 	CustomerDetail: lazy(() => import('../pages/PlatformAdmin/Customers/CustomerDetails/CustomerDetailPage')),
 	Licenses: lazy(() => import('../pages/PlatformAdmin/Licenses/index')),
+	Partners: lazy(() => import('../pages/PlatformAdmin/Partners/index')),
+	PartnerDetail: lazy(() => import('../pages/PlatformAdmin/Partners/PartnerDetails/PartnerDetailPage')),
 }
 interface CustomRouteConfig {
 	path: string;
@@ -43,6 +45,7 @@ const ADMIN_CONSOLE_ROLES = ['Admin', 'Manager', 'HR'];
 const SELF_MODE_USER_ROLE = 'user';
 const SELF_MODE_ROUTES = [...ADMIN_CONSOLE_ROLES, SELF_MODE_USER_ROLE];
 const PLATFORM_ADMIN_ROLES = ['platform_admin'];
+const PARTNER_ROLES = ['partner'];
 
 const RouteConfig: CustomRouteConfig[] = [
 	{
@@ -158,16 +161,26 @@ const RouteConfig: CustomRouteConfig[] = [
 	{
 		path: allRoutesObject.Customers.path,
 		element: <MAINROUTE.Customers />,
-		allowedTo: PLATFORM_ADMIN_ROLES,
+		allowedTo: [...PLATFORM_ADMIN_ROLES, ...PARTNER_ROLES],
 	},
 	{
 		path: pagesNotInSideBar.CustomerDetails.path,
 		element: <MAINROUTE.CustomerDetail />,
-		allowedTo: PLATFORM_ADMIN_ROLES,
+		allowedTo: [...PLATFORM_ADMIN_ROLES, ...PARTNER_ROLES],
 	},
 	{
 		path: allRoutesObject.Licenses.path,
 		element: <MAINROUTE.Licenses />,
+		allowedTo: [...PLATFORM_ADMIN_ROLES, ...PARTNER_ROLES],
+	},
+	{
+		path: allRoutesObject.Partners.path,
+		element: <MAINROUTE.Partners />,
+		allowedTo: PLATFORM_ADMIN_ROLES,
+	},
+	{
+		path: pagesNotInSideBar.PartnerDetails.path,
+		element: <MAINROUTE.PartnerDetail />,
 		allowedTo: PLATFORM_ADMIN_ROLES,
 	},
 ]

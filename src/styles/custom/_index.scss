@@ -875,6 +875,47 @@ overflow-x: hidden;
 	}
 }
 
+[theme='dark'] {
+	.role-switch-track {
+		background: rgba(255, 255, 255, 0.06);
+		box-shadow:
+			0 2px 14px rgba(0, 0, 0, 0.45),
+			inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	}
+
+	.role-switch-thumb {
+		background: rgba(255, 255, 255, 0.1);
+		box-shadow:
+			0 4px 12px rgba(0, 0, 0, 0.45),
+			0 1px 2px rgba(0, 0, 0, 0.35);
+	}
+
+	.role-switch-option {
+		color: rgba(255, 255, 255, 0.5);
+	}
+
+	.role-switch-option.is-active {
+		color: rgba(255, 255, 255, 0.95);
+	}
+
+	.role-switch-option-icon:not(.is-active) {
+		border-color: #f0b429;
+
+		.svg-icon {
+			color: #f0b429;
+		}
+	}
+
+	.role-switch-option-icon.is-active {
+		background: #f5c542;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+		.svg-icon {
+			color: #1a1a1a;
+		}
+	}
+}
+
 .calendar-day-modal-tab-btn {
 	border-radius: 0.35rem !important;
 }
@@ -897,7 +938,7 @@ overflow-x: hidden;
 	}
 }
 
-// Schedule / attendance month calendars — taller day cells
+// Schedule / attendance month calendars — taller day cells, modern event chips
 .schedule-calendar,
 .schedule-calendar-grid {
 	.rbc-calendar,
@@ -907,19 +948,21 @@ overflow-x: hidden;
 
 	.rbc-month-view {
 		overflow-y: auto;
+		border-color: rgba(var(--bs-dark-rgb), 0.08);
 	}
 
 	.rbc-month-header .rbc-header {
 		display: flex;
 		align-items: flex-start;
 		justify-content: flex-start;
-		padding: 0.5rem 0.6rem;
+		padding: 0.6rem 0.65rem;
 		text-align: left;
-		font-size: 0.65rem;
-		font-weight: 500;
-		letter-spacing: 0.04em;
+		font-size: 0.66rem;
+		font-weight: 600;
+		letter-spacing: 0.05em;
 		text-transform: uppercase;
-		color: #b8b8b8;
+		color: rgba(var(--bs-dark-rgb), 0.4);
+		border-bottom-color: rgba(var(--bs-dark-rgb), 0.08);
 	}
 
 	.rbc-month-day-name {
@@ -929,23 +972,125 @@ overflow-x: hidden;
 	}
 
 	.rbc-month-row {
-		min-height: 8rem;
+		min-height: 8.5rem;
+	}
+
+	.rbc-month-row + .rbc-month-row {
+		border-top-color: rgba(var(--bs-dark-rgb), 0.08);
+	}
+
+	.rbc-day-bg + .rbc-day-bg {
+		border-left-color: rgba(var(--bs-dark-rgb), 0.06);
+	}
+
+	.rbc-off-range-bg {
+		background: rgba(var(--bs-dark-rgb), 0.02);
+	}
+
+	.rbc-today {
+		background-color: rgba(var(--bs-primary-rgb), 0.05);
 	}
 
 	.rbc-date-cell {
-		padding-top: 0.35rem;
+		padding: 0.4rem 0.65rem 0.15rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: rgba(var(--bs-dark-rgb), 0.6);
+	}
+
+	.rbc-date-cell.rbc-now .rbc-button-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.5rem;
+		height: 1.5rem;
+		padding: 0 0.3rem;
+		border-radius: 999px;
+		background: var(--bs-primary);
+		color: #fff;
+		font-weight: 700;
 	}
 
 	.rbc-row-content {
 		min-height: 6.5rem;
 	}
 
+	.rbc-row-content .rbc-row {
+		margin-bottom: 3px;
+	}
+
+	.rbc-row-segment {
+		padding: 0 3px 3px;
+	}
+
+	// Default RBC truncates event content to a single ellipsized line — override so our
+	// multi-line schedule name / time chips render fully instead of getting clipped.
+	.rbc-event-content {
+		overflow: visible !important;
+		white-space: normal !important;
+		text-overflow: clip !important;
+		height: auto !important;
+	}
+
 	.rbc-event,
 	.rbc-event--shift-card,
 	.rbc-shift-event-card {
 		border: none !important;
-		border-radius: 4px !important;
+		border-radius: 6px !important;
 		box-shadow: none !important;
+	}
+
+	.rbc-event {
+		padding: 3px 6px !important;
+	}
+
+	.rbc-status-event-card,
+	.rbc-shift-event-card {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		width: 100%;
+	}
+
+	.rbc-status-event-card__primary {
+		font-size: 0.74rem;
+		font-weight: 700;
+		line-height: 1.3;
+		white-space: normal;
+		word-break: break-word;
+	}
+
+	.rbc-status-event-card__detail {
+		font-size: 0.66rem;
+		font-weight: 500;
+		line-height: 1.25;
+		opacity: 0.82;
+		white-space: normal;
+		word-break: break-word;
+	}
+
+	.rbc-shift-event-card {
+		border-left: 3px solid currentColor;
+		border-radius: 6px;
+		padding: 3px 7px;
+	}
+
+	.rbc-shift-event-card__name {
+		font-size: 0.74rem;
+		font-weight: 700;
+		line-height: 1.3;
+		white-space: normal;
+		word-break: break-word;
+	}
+
+	.rbc-shift-event-card__detail {
+		font-size: 0.66rem;
+		font-weight: 600;
+		line-height: 1.25;
+		letter-spacing: 0.01em;
+		opacity: 0.85;
+		white-space: normal;
+		word-break: break-word;
 	}
 }
 

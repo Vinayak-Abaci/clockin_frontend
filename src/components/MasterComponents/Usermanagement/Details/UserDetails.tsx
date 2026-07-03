@@ -133,18 +133,21 @@ const UserDetails = ({
 						<DetailRow label='Office contact' value={user?.office_contact_number || ud?.user_contact_phone} />
 						<DetailRow label='User type' value={formatUserType(user)} />
 						{/* <DetailRow label='Access category' value={user?.access_category?.category} /> */}
-						<DetailRow label='Group' value={user?.group?.name || rel?.group_name} />
+						<DetailRow
+						label='Group'
+						value={
+							user?.groups?.map((group: { name: string }) => group.name).join(', ') ||
+							rel?.group_name ||
+							'—'
+						}
+					/>
 						<DetailRow label='Site' value={user?.site?.name || rel?.site_name} />
 						<DetailRow label='Designation' value={rel?.designation} />
 						{/* <DetailRow label='Status' value={user?.status} /> */}
 						<DetailRow
-							label='Reporting manager'
-							value={
-								user?.reporting_manager_name ||
-								user?.reporting_manager?.name ||
-								user?.reporting_manager
-							}
-						/>
+						label="Reporting manager"
+						value={`${user?.reporting_manager?.first_name || ''} ${user?.reporting_manager?.last_name || ''}`.trim() || '—'}
+					/>
 					</div>
 				</CardBody>
 		</Card>

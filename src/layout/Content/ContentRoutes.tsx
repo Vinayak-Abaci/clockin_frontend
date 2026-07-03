@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute'; // Import ProtectedRoute
 import ErrorPage from '../../pages/PublicPages/ErrorPage';
 import Login from '../../pages/Auth/Login';
 import AdminLogin from '../../pages/Auth/AdminLogin';
+import PartnerLogin from '../../pages/Auth/PartnerLogin';
 import Registration from '../../pages/Auth/Registration';
 import ForgotPassword from '../../pages/Auth/ForgotPassword';
 import SetPassword from '../../pages/Auth/SetPassword';
@@ -14,7 +15,7 @@ import AuthContext from '../../contexts/authContext';
 import Unauthorized from '../../pages/PublicPages/Unauthorized';
 import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
 import RouteConfig from '../../routes/contentRoutes';
-import { getEffectiveUserTypeForRoutes, isPlatformAdmin, PLATFORM_ADMIN_HOME_PATH } from '../../helpers/roleToggleUtils';
+import { getEffectiveUserTypeForRoutes, isPlatformPartner, isPlatformAdmin, PLATFORM_PARTNER_HOME_PATH, PLATFORM_ADMIN_HOME_PATH } from '../../helpers/roleToggleUtils';
 import { getDefaultAuthPath } from '../../helpers/baseURL';
 
 const isAuthenticatedUser = (userData: unknown) =>
@@ -32,6 +33,7 @@ const ContentRoutes = () => {
 	const mode = accountToggle || 'Admin';
 	const effectiveUserType = getEffectiveUserTypeForRoutes(userData?.user_type, mode, userData);
 	const platformAdmin = isPlatformAdmin(userData);
+	const partner = isPlatformPartner(userData);
 
 	const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
@@ -41,6 +43,7 @@ const ContentRoutes = () => {
         path === '/' ||
         path === '/login' ||
         path === '/clockin-admin/login' ||
+        path === '/clockin-partner/login' ||
         path === '/signup' ||
         path === '/forgotpassword' ||
         path === '/set-password';
@@ -63,6 +66,7 @@ const ContentRoutes = () => {
       )}
       <Route path="/login" element={<Login />} />
       <Route path="/clockin-admin/login" element={<AdminLogin />} />
+      <Route path="/clockin-partner/login" element={<PartnerLogin />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/public/activation/:string" element={<Registration />} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
@@ -83,6 +87,18 @@ const ContentRoutes = () => {
           ))}
           <Route path='/' element={<Navigate to={PLATFORM_ADMIN_HOME_PATH} replace />} />
           <Route path='*' element={<Navigate to={PLATFORM_ADMIN_HOME_PATH} replace />} />
+        </>
+      ) : partner ? (
+        <>
+          {RouteConfig.filter((page) => page.allowedTo?.includes('partner')).map((page) => (
+            <Route
+              path={page.path}
+              element={<ProtectedRoute element={page.element} />}
+              key={page.path}
+            />
+          ))}
+          <Route path='/' element={<Navigate to={PLATFORM_PARTNER_HOME_PATH} replace />} />
+          <Route path='*' element={<Navigate to={PLATFORM_PARTNER_HOME_PATH} replace />} />
         </>
       ) : (
         <>

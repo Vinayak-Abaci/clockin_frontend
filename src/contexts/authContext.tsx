@@ -28,6 +28,7 @@ const isPublicAuthPath = (pathname: string) =>
 	pathname === '/' ||
 	pathname === '/login' ||
 	pathname === '/clockin-admin/login' ||
+	pathname === '/clockin-partner/login' ||
 	pathname === '/signup' ||
 	pathname === '/forgotpassword' ||
 	pathname === '/set-password';
@@ -45,9 +46,16 @@ export const AuthContextProvider: FC<IAuthContextProviderProps> = ({ children })
   
 const setLogOut = () => {
     const isPlatformAdminUser = userData?.is_platform_admin === true;
+    const isPlatformPartnerUser = userData?.is_platform_partner === true;
     // Keep Redux auth mode in sync with context logout.
     dispatch(setAuthLogOut());
-    navigate(isPlatformAdminUser ? '/clockin-admin/login' : getDefaultAuthPath());
+    if (isPlatformAdminUser) {
+      navigate('/clockin-admin/login');
+    } else if (isPlatformPartnerUser) {
+      navigate('/clockin-partner/login');
+    } else {
+      navigate(getDefaultAuthPath());
+    }
     setUser('');
     setUserData({});
     Cookies.remove('socketIOToken');
@@ -82,6 +90,7 @@ const setLogOut = () => {
             ...resolvedUser,
             is_platform_admin:
               response.data?.is_platform_admin ?? profileUser?.is_platform_admin ?? false,
+            is_platform_partner: response.data?.is_platform_partner ?? profileUser?.is_platform_partner ?? false,
           });
           
         

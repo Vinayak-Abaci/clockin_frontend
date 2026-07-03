@@ -45,6 +45,8 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
 	offline: { styleKey: 'Cancelled', icon: 'CloudOff', label: 'Offline' },
 	maintenance: { styleKey: 'Scheduled', icon: 'Build', label: 'Maintenance' },
 	unknown: { styleKey: 'Check', icon: 'HelpOutline', label: 'Unknown' },
+	requested: { styleKey: 'Scheduled', icon: 'Schedule', label: 'Requested' },
+	request_cancelled: { styleKey: 'Cancelled', icon: 'Cancel', label: 'Request Cancelled' },
 };
 
 const getPillStyles = (styleKey: string, themeStatus: string): PillStyle => {

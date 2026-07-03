@@ -57,7 +57,7 @@ const MainHeaderRight: FC<IMainHeaderRightProps> = ({ beforeChildren, afterChild
 				
 				
 				{/* Dark Mode */}
-				{/* <div className='col-auto'>
+				<div className='col-auto'>
 					<Popovers trigger='hover' desc='Dark / Light mode'>
 						<Button
 							// eslint-disable-next-line react/jsx-props-no-spreading
@@ -73,7 +73,7 @@ const MainHeaderRight: FC<IMainHeaderRightProps> = ({ beforeChildren, afterChild
 							/>
 						</Button>
 					</Popovers>
-				</div> */}
+				</div>
 
 				{/*	Full Screen */}
 				<div className='col-auto'>
