@@ -472,9 +472,7 @@ const ScheduleCalendarDetailModal = ({
 					</div>
 				) : (
 					<>
-						<div
-							className='d-flex justify-content-between align-items-center px-3 py-2 mb-3 rounded-3'
-							style={{ background: '#f1f3f5' }}>
+						<div className='d-flex justify-content-between align-items-center px-3 py-2 mb-3 rounded-3 user-calendar-day-status-bar'>
 							<div className='d-flex align-items-center gap-2'>
 								<span className='text-muted small'>Status:</span>
 								<Chip
@@ -489,7 +487,7 @@ const ScheduleCalendarDetailModal = ({
 							</div>
 						</div>
 
-						<div className='p-3 rounded-3 border bg-white shadow-sm'>
+						<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel'>
 							<div className='d-flex justify-content-between mb-2'>
 								<div className='fw-semibold mb-2 text-warning'>
 									<CalendarTodayIcon fontSize='small' /> Schedule
@@ -590,7 +588,7 @@ const ScheduleCalendarDetailModal = ({
 													return (
 														<li key={rowKey} className='mb-2'>
 															<div>
-																<span className='fw-semibold text-dark'>{e.name}</span>
+																<span className='fw-semibold'>{e.name}</span>
 																{e.otHours != null &&
 																	String(e.otHours).trim() !== '' &&
 																	Number(e.otHours) > 0 && (
@@ -638,7 +636,7 @@ const ScheduleCalendarDetailModal = ({
 													const st = lr?.status != null ? formatLeaveStatusLabel(lr.status) : '—';
 													return (
 														<li key={lr?.id ?? `leave-${i}`} className='mb-2'>
-															<span className='fw-semibold text-dark'>{String(typeLabel)}</span>
+															<span className='fw-semibold'>{String(typeLabel)}</span>
 															<span className='text-muted ms-2'>
 																<Chip
 																	label={st}
@@ -662,7 +660,7 @@ const ScheduleCalendarDetailModal = ({
 						</div>
 
 						{!editMode && (
-							<div className='p-3 rounded-3 border bg-white shadow-sm mt-3'>
+							<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel mt-3'>
 								<div className='fw-semibold mb-2 text-warning d-flex align-items-center gap-1'>
 									<AccessTimeIcon fontSize='small' />
 									Shifts
@@ -681,7 +679,7 @@ const ScheduleCalendarDetailModal = ({
 												<li
 													key={`${row.shift_name ?? 'shift'}-${i}`}
 													className='mb-2 pb-2 border-bottom border-light'>
-													<div className='fw-semibold text-dark'>
+													<div className='fw-semibold'>
 														{row.shift_name || `Shift ${i + 1}`}
 														{hasTimes && (
 															<span className='text-muted fw-normal ms-2'>
@@ -699,7 +697,7 @@ const ScheduleCalendarDetailModal = ({
 													)}
 													{workingLabels.length > 0 && (
 														<div className='text-muted small mt-1'>
-															<span className='fw-semibold text-dark me-1'>Working:</span>
+															<span className='fw-semibold me-1'>Working:</span>
 															{workingLabels.join(', ')}
 														</div>
 													)}

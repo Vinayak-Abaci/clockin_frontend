@@ -17,7 +17,7 @@ interface DeleteButtonProps {
 const DeleteButton: React.FC<DeleteButtonProps> = ({  apiEndpoint, tableRef,text }) => {
 	const {showErrorNotification}=useToasterNotification();
 
-  const { darkModeStatus } = useDarkMode();
+  const { themeStatus } = useDarkMode();
 
   const deletehandler = (e:any) => {
     e.stopPropagation();
@@ -28,6 +28,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({  apiEndpoint, tableRef,text
       text:text|| "You won't be able to revert this!",
       showCancelButton: true,
       iconColor: buttonColor[0],
+      theme: themeStatus === 'dark' ? 'dark' : 'light',
       confirmButtonColor: buttonColor[0],
       cancelButtonColor: buttonColor[1],
       confirmButtonText: 'Delete',

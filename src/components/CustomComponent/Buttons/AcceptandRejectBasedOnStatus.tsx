@@ -93,7 +93,7 @@ const AcceptandRejectBasedOnStatus: React.FC<AcceptAndRejectButtonProps> = ({
           isOutline={false}
           isLight
           size='sm'
-          color='secondary'
+          color='success'
           className={classNames('text-nowrap', {
             'border-light': false,
           })}

@@ -759,6 +759,19 @@ overflow-x: hidden;
 	}
 }
 
+[theme='dark'] {
+	.authentication-bg {
+		.bg-overlay {
+			background-color: rgba(0, 0, 0, 0.35);
+		}
+	}
+
+	.authentication-page-content {
+		background-color: var(--bs-body-bg, #1f2128);
+		color: var(--bs-body-color, #e0e0e0);
+	}
+}
+
 // Shared header chip — same box as DateAndTime (fixed height, 10px padding, 15px radius)
 .header-toolbar-pill {
 	box-sizing: border-box;
@@ -938,6 +951,42 @@ overflow-x: hidden;
 	}
 }
 
+.user-calendar-day-status-bar {
+	background: #f1f3f5;
+}
+
+.user-calendar-day-panel {
+	background: #fff;
+	border-color: rgba(var(--bs-dark-rgb), 0.08) !important;
+}
+
+.user-calendar-day-comment-item {
+	background: var(--bs-light, #f8f9fa);
+}
+
+[theme='dark'],
+[data-theme='dark'] {
+	.user-calendar-day-status-bar {
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.user-calendar-day-panel {
+		background: #242731;
+		border-color: rgba(255, 255, 255, 0.08) !important;
+		box-shadow: none !important;
+
+		.border.rounded-2,
+		.border-light {
+			border-color: rgba(255, 255, 255, 0.08) !important;
+		}
+	}
+
+	.user-calendar-day-comment-item {
+		background: rgba(255, 255, 255, 0.04) !important;
+		border-color: rgba(255, 255, 255, 0.08) !important;
+	}
+}
+
 // Schedule / attendance month calendars — taller day cells, modern event chips
 .schedule-calendar,
 .schedule-calendar-grid {
@@ -1091,6 +1140,73 @@ overflow-x: hidden;
 		opacity: 0.85;
 		white-space: normal;
 		word-break: break-word;
+	}
+}
+
+[theme='dark'] {
+	.schedule-calendar,
+	.schedule-calendar-grid {
+		.rbc-month-view {
+			border-color: rgba(255, 255, 255, 0.12);
+			background: var(--bs-body-bg, #1f2128);
+		}
+
+		.rbc-month-header .rbc-header {
+			color: rgba(255, 255, 255, 0.45);
+			border-bottom-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.rbc-month-row + .rbc-month-row {
+			border-top-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.rbc-day-bg {
+			background: rgba(255, 255, 255, 0.02);
+		}
+
+		.rbc-day-bg + .rbc-day-bg {
+			border-left-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.rbc-off-range-bg {
+			background: rgba(0, 0, 0, 0.25);
+		}
+
+		.rbc-off-range {
+			color: rgba(255, 255, 255, 0.3);
+		}
+
+		.rbc-today {
+			background-color: rgba(var(--bs-primary-rgb), 0.15);
+		}
+
+		.rbc-date-cell {
+			color: rgba(255, 255, 255, 0.7);
+		}
+
+		.rbc-date-cell.rbc-now .rbc-button-link {
+			color: #fff;
+		}
+
+		// Shift schedule chips — override inline gray tones from light mode
+		.rbc-shift-event-card {
+			background: rgba(255, 255, 255, 0.08) !important;
+			color: #e2e8f0 !important;
+			border-left-color: #94a3b8 !important;
+		}
+
+		.rbc-shift-event-card__name {
+			color: #f1f5f9;
+		}
+
+		.rbc-shift-event-card__detail {
+			color: #cbd5e1;
+			opacity: 1;
+		}
+
+		.rbc-status-event-card__detail {
+			opacity: 0.9;
+		}
 	}
 }
 

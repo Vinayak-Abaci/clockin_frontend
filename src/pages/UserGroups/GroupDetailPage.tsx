@@ -5,7 +5,7 @@ import SubHeader, { SubHeaderLeft, SubheaderSeparator } from '../../layout/SubHe
 import { CardTitle } from '../../components/bootstrap/Card';
 import Page from '../../layout/Page/Page';
 import BackButton from '../../components/CustomComponent/Buttons/BackButton';
-import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
+import GroupDetailSkeleton from '../../components/CustomComponent/Skeleton/GroupDetailSkeleton';
 import { authAxios } from '../../axiosInstance';
 import useToasterNotification from '../../hooks/useToasterNotification';
 import GroupDetails from './GroupDetails';
@@ -58,14 +58,8 @@ const GroupDetailPage = () => {
 				</SubHeaderLeft>
 			</SubHeader>
 			<Page container='fluid' className='position-relative'>
-				{loading && (
-					<div
-						className='d-flex justify-content-center align-items-center py-5'
-						style={{ minHeight: '40vh' }}>
-						<AbaciLoader />
-					</div>
-				)}
-				{!loading && (
+				{loading && <GroupDetailSkeleton />}
+				<div className={loading ? 'd-none' : undefined}>
 					<div className='row g-4 align-items-stretch'>
 						<div className='col-12 col-lg-6 mb-4 mb-lg-0 d-flex'>
 							<GroupDetails group={group} />
@@ -88,7 +82,7 @@ const GroupDetailPage = () => {
 							</Card>
 						</div>
 					</div>
-				)}
+				</div>
 			</Page>
 		</PageWrapper>
 	);

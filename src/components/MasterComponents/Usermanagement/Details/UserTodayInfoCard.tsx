@@ -8,7 +8,7 @@ import CustomSpinner from '../../../CustomSpinner/CustomSpinner';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-
+import StatusBadge from '../../../CustomComponent/StatusBadge';
 
 type Props = { userId?: string; fillHeight?: boolean };
 
@@ -60,14 +60,9 @@ const UserTodayInfoCard = ({ userId, fillHeight = false }: Props) => {
                     <div className='row g-3'>
                         <div className='col-12 col-md-3'>
                             <div className='text-warning fw-semibold fs-6 mb-2'>Status</div>
-                            <Chip
-                                label={detail?.status || 'Not Available'}
-                                size='small'
-                                sx={{
-                                    fontWeight: 700,
-                                    bgcolor: `${detail?.status_meta?.color ?? '#6c757d'}22`,
-                                    color: detail?.status_meta?.color ?? '#495057',
-                                }}
+                            <StatusBadge
+                                status={detail?.status || 'Not Available'}
+                                emptyFallback='Not Available'
                             />
                         </div>
                         <div className='col-12 col-md-3'>

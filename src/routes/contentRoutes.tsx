@@ -36,16 +36,19 @@ const MAINROUTE={
 interface CustomRouteConfig {
 	path: string;
 	element: React.ReactNode;
-	allowedTo?: string[]; // Custom property for role-based access control
+	allowedTo?: string[]; 
 }
 
-/** Admin console roles — Manager shares the same page access as Admin. */
 const ADMIN_CONSOLE_ROLES = ['Admin', 'Manager', 'HR'];
-/** User role and Self toggle mode share the same self-service pages. */
 const SELF_MODE_USER_ROLE = 'user';
 const SELF_MODE_ROUTES = [...ADMIN_CONSOLE_ROLES, SELF_MODE_USER_ROLE];
 const PLATFORM_ADMIN_ROLES = ['platform_admin'];
 const PARTNER_ROLES = ['partner'];
+const ALL_AUTHENTICATED_ROLES = [
+	...SELF_MODE_ROUTES,
+	...PLATFORM_ADMIN_ROLES,
+	...PARTNER_ROLES,
+];
 
 const RouteConfig: CustomRouteConfig[] = [
 	{
@@ -56,7 +59,7 @@ const RouteConfig: CustomRouteConfig[] = [
 	{
 		path: pagesNotInSideBar.Profile.path,
 		element: <MAINROUTE.Profile/>,
-		allowedTo: ADMIN_CONSOLE_ROLES,
+		allowedTo: ALL_AUTHENTICATED_ROLES,
 	},
 	{
 		path: allRoutesObject.UserManagement.path,

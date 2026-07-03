@@ -12,7 +12,7 @@ import {
 	buildAttendanceExportUrl,
 	hrExportFileName,
 } from '../../../helpers/hrExportUtils';
-
+import useDarkMode from '../../../hooks/useDarkMode';
 const EXPORT_VARIANTS = {
 	legacy: 'legacy',
 	attendanceEvents: 'attendance-events',
@@ -44,6 +44,7 @@ const ExportButton = ({
 	hiddenColumnsKey = '',
 	modalTitle,
 }) => {
+	const { darkModeStatus } = useDarkMode();
 	const hrExportBuilder = HR_EXPORT_BUILDERS[variant];
 	const isHrExport = Boolean(hrExportBuilder);
 	const { showErrorNotification } = useToasterNotification();
@@ -145,7 +146,7 @@ const ExportButton = ({
 		<>
 			<Button
 				icon='Download'
-				color='secondary'
+				color={darkModeStatus ? 'light' : 'dark'}
 				isLight
 				isDisable={isLoading}
 				onClick={() => setIsModalShow(true)}>

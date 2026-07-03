@@ -1029,9 +1029,7 @@ const UserCalendarDetailModal = ({
 					<>
 						{activeTab === 'details' && (
 							<>
-								<div
-									className='d-flex justify-content-between align-items-center px-3 py-2 mb-3 rounded-3'
-									style={{ background: '#f1f3f5' }}>
+								<div className='d-flex justify-content-between align-items-center px-3 py-2 mb-3 rounded-3 user-calendar-day-status-bar'>
 									<div className='w-100 d-flex align-items-center gap-2 justify-content-between'>
 										<div className='d-flex-col align-items-center gap-4 justify-content-between'>
 											<div className='d-flex align-items-center gap-2'>
@@ -1086,7 +1084,7 @@ const UserCalendarDetailModal = ({
 									</div>
 								</div>
 
-								<div className='p-3 rounded-3 border bg-white shadow-sm mb-3'>
+								<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel mb-3'>
 									<div className='d-flex justify-content-between align-items-start mb-2'>
 										<div className='fw-semibold text-warning d-flex align-items-center gap-1'>
 											<CalendarTodayIcon fontSize='small' />
@@ -1145,7 +1143,7 @@ const UserCalendarDetailModal = ({
 								</div>
 
 								{specialLines.length > 0 && (
-									<div className='p-3 rounded-3 border bg-white shadow-sm mb-3'>
+									<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel mb-3'>
 										<div className='fw-semibold text-warning mb-2 d-flex align-items-center gap-1'>
 											<BrowseGalleryIcon fontSize='small' />
 											Special day
@@ -1158,7 +1156,7 @@ const UserCalendarDetailModal = ({
 									</div>
 								)}
 
-								<div className='p-3 rounded-3 border bg-white shadow-sm mb-3'>
+								<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel mb-3'>
 									<div className='fw-semibold text-warning mb-2'>Special periods</div>
 									{specialPeriodsLoading ? (
 										<div className='text-muted small'>Loading…</div>
@@ -1177,7 +1175,7 @@ const UserCalendarDetailModal = ({
 
 								<div className='row g-3'>
 									<div className='col-12 col-md-6'>
-										<div className='p-3 rounded-3 border h-100 bg-white shadow-sm'>
+										<div className='p-3 rounded-3 border h-100 shadow-sm user-calendar-day-panel'>
 											<div className='d-flex justify-content-between align-items-center mb-2'>
 												<div className='fw-semibold text-warning'>
 													<HistoryToggleOffIcon fontSize='small' /> Leave
@@ -1237,7 +1235,7 @@ const UserCalendarDetailModal = ({
 									</div>
 
 									<div className='col-12 col-md-6'>
-										<div className='p-3 rounded-3 border h-100 bg-white shadow-sm'>
+										<div className='p-3 rounded-3 border h-100 shadow-sm user-calendar-day-panel'>
 											<div className='fw-semibold text-warning mb-2'>
 												<AccessTimeIcon fontSize='small' /> Overtime
 											</div>
@@ -1301,7 +1299,7 @@ const UserCalendarDetailModal = ({
 						)}
 
 						{activeTab === 'events' && (
-							<div className='p-3 rounded-3 border bg-white shadow-sm'>
+							<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel'>
 								<div className='d-flex justify-content-between align-items-center mb-2'>
 									<div className='fw-semibold text-warning d-flex align-items-center gap-1'>
 										<AccessTimeIcon fontSize='small' />
@@ -1341,7 +1339,7 @@ const UserCalendarDetailModal = ({
 						)}
 
 						{activeTab === 'comments' && (
-							<div className='p-3 rounded-3 border bg-white shadow-sm'>
+							<div className='p-3 rounded-3 border shadow-sm user-calendar-day-panel'>
 								<div className='fw-semibold text-warning mb-3 d-flex align-items-center gap-1'>
 									<CommentIcon fontSize='small' />
 									Comments
@@ -1359,7 +1357,7 @@ const UserCalendarDetailModal = ({
 											return (
 												<li
 													key={cmd.id}
-													className='border rounded-2 p-3 bg-light'>
+													className='border rounded-2 p-3 user-calendar-day-comment-item'>
 													<div className='fw-semibold'>{cmd.command}</div>
 													<div className='text-muted small mt-1'>
 														{cmd.command_datetime

@@ -10,6 +10,7 @@ import useDarkMode from '../../hooks/useDarkMode';
 import AuthContext from '../../contexts/authContext';
 import { publicAxios } from '../../axiosInstance';
 import LogoForLogin from '../../assets/LogoForLogin.png';
+import ClockInLogoDark from '../../assets/ClockInLogoDark.png';
 import loginBackground from '../../assets/Home.jpg';
 import validateEmail from '../../helpers/emailValidator';
 import { GenderOptions } from '../../helpers/constants';
@@ -218,7 +219,13 @@ const Signup = () => {
 	}
 
 	return (
-		<PageWrapper isProtected={false} title='Sign Up' className='p-0 bg-white'>
+		<PageWrapper
+			isProtected={false}
+			title='Sign Up'
+			className={classNames('p-0', {
+				'bg-white': !darkModeStatus,
+				'bg-dark': darkModeStatus,
+			})}>
 			<Page className='p-0' container={false}>
 				<div style={{ width: '100%', height: '100vh' }}>
 					<Container fluid className='p-0'>
@@ -237,7 +244,11 @@ const Signup = () => {
 									<div style={{ width: '80%' }}>
 										<div className='py-5'>
 											<div className='text-center mb-4'>
-												<img src={LogoForLogin} alt='Logo' height='70' />
+												<img
+													src={darkModeStatus ? ClockInLogoDark : LogoForLogin}
+													alt='Logo'
+													height='70'
+												/>
 											</div>
 
 											<div className='text-center h2 mb-4'>SIGN UP</div>

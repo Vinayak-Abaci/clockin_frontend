@@ -7,10 +7,9 @@ import Page from '../../layout/Page/Page';
 import BackButton from '../../components/CustomComponent/Buttons/BackButton';
 import UserDetails from '../../components/MasterComponents/Usermanagement/Details/UserDetails';
 import UserScheduleCalendarSection from '../../components/MasterComponents/Usermanagement/Details/UserScheduleCalendarSection';
-import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
+import UserDetailSkeleton from '../../components/CustomComponent/Skeleton/UserDetailSkeleton';
 import UserTodayInfoCard from '../../components/MasterComponents/Usermanagement/Details/UserTodayInfoCard';
 import UserDocumentsSection from '../../components/MasterComponents/Usermanagement/Details/UserDocumentsSection';
-
 const UserManagementPage = () => {
 	const { id } = useParams();
 	const [userReady, setUserReady] = useState(false);
@@ -36,30 +35,28 @@ const UserManagementPage = () => {
 				</SubHeaderLeft>
 			</SubHeader>
 			<Page container='fluid' className='position-relative'>
-				{showPageLoader && (
-					<div
-						className='position-absolute top-0 start-0 w-100 d-flex justify-content-center align-items-center bg-body'
-						style={{ zIndex: 10, minHeight: '55vh' }}>
-						<AbaciLoader />
+				{showPageLoader && <UserDetailSkeleton />}
+				<div className={showPageLoader ? 'd-none' : undefined}>
+					<div className='row g-4 align-items-stretch'>
+						<div className='col-12 col-lg-6 mb-4 d-flex flex-column'>
+							<div className='mb-4'>
+								<UserDetails userId={id} onLoadComplete={onUserLoadComplete} />
+							</div>
+							<div className='flex-grow-1'>
+								<UserTodayInfoCard userId={id} fillHeight />
+							</div>
+						</div>
+						{userReady && (
+							<div className='col-12 col-lg-6 mb-4 d-flex flex-column'>
+								<UserDocumentsSection userId={id} />
+							</div>
+						)}
+						{userReady ? (
+							<div className='col-12'>
+								<UserScheduleCalendarSection userId={id} />
+							</div>
+						) : null}
 					</div>
-				)}
-				<div className='row g-4'>
-					<div className='col-12 col-lg-6 mb-4'>
-						<div className='mb-4'>
-							<UserDetails userId={id} onLoadComplete={onUserLoadComplete} />
-						</div>
-						<UserTodayInfoCard userId={id} />
-					</div>
-					{userReady && (
-						<div className='col-12 col-lg-6 mb-4'>
-							<UserDocumentsSection userId={id} />
-						</div>
-					)}
-					{userReady ? (
-						<div className='col-12'>
-							<UserScheduleCalendarSection userId={id} />
-						</div>
-					) : null}
 				</div>
 			</Page>
 		</PageWrapper>

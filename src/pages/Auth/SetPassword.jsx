@@ -13,6 +13,7 @@ import useDarkMode from '../../hooks/useDarkMode';
 import AuthContext from '../../contexts/authContext';
 import { publicAxios } from '../../axiosInstance';
 import LogoForLogin from '../../assets/LogoForLogin.png';
+import ClockInLogoDark from '../../assets/ClockInLogoDark.png';
 import loginBackground from '../../assets/Home.jpg';
 import showNotification from '../../components/extras/showNotification';
 import Error from '../../helpers/Error';
@@ -84,7 +85,13 @@ const SetPassword = () => {
 	});
 
 	return (
-		<PageWrapper isProtected={false} title='Set Password' className='p-0 bg-white'>
+		<PageWrapper
+			isProtected={false}
+			title='Set Password'
+			className={classNames('p-0', {
+				'bg-white': !darkModeStatus,
+				'bg-dark': darkModeStatus,
+			})}>
 			<Page className='p-0' container={false}>
 				<div style={{ width: '100%', height: '100vh' }}>
 					<Container fluid className='p-0'>
@@ -101,7 +108,11 @@ const SetPassword = () => {
 									<div style={{ width: '80%' }}>
 										<div className='p-5'>
 											<div className='text-center'>
-												<img src={LogoForLogin} alt='' height='70' />
+												<img
+													src={darkModeStatus ? ClockInLogoDark : LogoForLogin}
+													alt=''
+													height='70'
+												/>
 											</div>
 											<div
 												className={classNames('rounded-3', {

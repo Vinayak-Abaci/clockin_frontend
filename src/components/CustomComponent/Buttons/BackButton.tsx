@@ -5,7 +5,7 @@ import Button from '../../bootstrap/Button'
 const BackButton = () => {
     const navigate = useNavigate();
   return (
-    <Button size='sm'  color='secondary' isLink icon='ArrowBack' onClick={() => navigate(-1)}>
+    <Button size='sm'  color='light' isLink icon='ArrowBack' onClick={() => navigate(-1)}>
       Back
    </Button>
   )

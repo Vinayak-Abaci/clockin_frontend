@@ -1,13 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Col, Container, Row, Spinner } from 'reactstrap';
+import classNames from 'classnames';
 import { useFormik } from 'formik';
 import { AnimatePresence, motion } from 'framer-motion';
 import LogoForLogin from '../../assets/LogoForLogin.png';
+import ClockInLogoDark from '../../assets/ClockInLogoDark.png';
 import loginBackground from '../../assets/Home.jpg';
 import Button from '../../components/bootstrap/Button';
 import PageWrapper from '../../layout/PageWrapper/PageWrapper';
 import Page from '../../layout/Page/Page';
+import useDarkMode from '../../hooks/useDarkMode';
 import AuthContext from '../../contexts/authContext';
 import { publicAxios } from '../../axiosInstance';
 import validateEmail from '../../helpers/emailValidator';
@@ -27,6 +30,7 @@ const formVariants = {
 
 const ForgotPassword = () => {
 	const { setLogOut } = useContext(AuthContext);
+	const { darkModeStatus } = useDarkMode();
 	const [waitingForAxios, setWaitingForAxios] = useState(false);
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState('Enter email');
@@ -142,7 +146,10 @@ const ForgotPassword = () => {
 		<PageWrapper
 			isProtected={false}
 			title='Forgot Password'
-			className='p-0 bg-white'>
+			className={classNames('p-0', {
+				'bg-white': !darkModeStatus,
+				'bg-dark': darkModeStatus,
+			})}>
 			<Page className='p-0' container={false}>
 				<div style={{ width: '100%', height: '100vh' }}>
 					<Container fluid className='p-0'>
@@ -161,7 +168,11 @@ const ForgotPassword = () => {
 									<div style={{ width: '80%' }}>
 										<div className='py-5'>
 											<div className='text-center mb-4'>
-												<img src={LogoForLogin} alt='Logo' height='70' />
+												<img
+													src={darkModeStatus ? ClockInLogoDark : LogoForLogin}
+													alt='Logo'
+													height='70'
+												/>
 											</div>
 
 											<motion.div

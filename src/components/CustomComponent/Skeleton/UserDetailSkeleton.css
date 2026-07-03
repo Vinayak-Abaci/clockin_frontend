@@ -1,0 +1,206 @@
+.ud-skeleton-page {
+	width: 100%;
+}
+
+.ud-skeleton-card {
+	border: 1px solid rgba(0, 0, 0, 0.08);
+	border-radius: 0.75rem;
+	background: #fff;
+	padding: 1.25rem;
+}
+
+.ud-skeleton-shimmer {
+	background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 20%, #f1f5f9 40%, #f1f5f9 100%);
+	background-size: 220px 100%;
+	animation: ud-skeleton-loading 1.2s ease-in-out infinite;
+	border-radius: 0.5rem;
+}
+
+@keyframes ud-skeleton-loading {
+	0% {
+		background-position: -220px 0;
+	}
+	100% {
+		background-position: calc(220px + 100%) 0;
+	}
+}
+
+/* Profile card */
+.ud-skeleton-profile-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.ud-skeleton-avatar {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.ud-skeleton-line {
+	height: 0.75rem;
+	width: 100%;
+	border-radius: 0.5rem;
+}
+
+.ud-skeleton-line--name {
+	height: 1.25rem;
+	width: 45%;
+}
+
+.ud-skeleton-line--email {
+	height: 0.85rem;
+	width: 35%;
+}
+
+.ud-skeleton-line--label {
+	height: 0.6rem;
+	width: 55%;
+}
+
+.ud-skeleton-line--value {
+	height: 0.9rem;
+	width: 75%;
+}
+
+.ud-skeleton-line--today-title {
+	height: 1.1rem;
+	width: 45%;
+}
+
+.ud-skeleton-line--panel-title {
+	height: 1.1rem;
+	width: 35%;
+}
+
+.ud-skeleton-line--doc-name {
+	height: 0.9rem;
+	width: 65%;
+}
+
+.ud-skeleton-line--doc-date {
+	height: 0.7rem;
+	width: 40%;
+}
+
+.ud-skeleton-detail-grid {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+@media (min-width: 768px) {
+	.ud-skeleton-detail-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 1200px) {
+	.ud-skeleton-detail-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.ud-skeleton-detail-tile {
+	min-width: 0;
+}
+
+/* Today info card */
+.ud-skeleton-today-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+@media (min-width: 768px) {
+	.ud-skeleton-today-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+.ud-skeleton-chip {
+	height: 1.5rem;
+	width: 70%;
+	border-radius: 2rem;
+}
+
+/* Documents card */
+.ud-skeleton-documents-card {
+	height: 550px;
+	max-height: 550px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ud-skeleton-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.25rem;
+	flex-shrink: 0;
+}
+
+.ud-skeleton-button {
+	height: 2rem;
+	width: 7.5rem;
+	flex-shrink: 0;
+}
+
+.ud-skeleton-document-row {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ud-skeleton-document-row:last-child {
+	border-bottom: none;
+}
+
+.ud-skeleton-document-icon {
+	width: 44px;
+	height: 44px;
+	border-radius: 0.5rem;
+	flex-shrink: 0;
+}
+
+.ud-skeleton-icon-btn {
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	flex-shrink: 0;
+}
+
+/* Calendar card */
+.ud-skeleton-calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	gap: 0.5rem;
+}
+
+.ud-skeleton-calendar-cell {
+	aspect-ratio: 1.4 / 1;
+	border-radius: 0.5rem;
+}
+
+/* Dark mode */
+[theme='dark'] .ud-skeleton-card,
+[data-theme='dark'] .ud-skeleton-card {
+	border-color: rgba(255, 255, 255, 0.08);
+	background: #1e1e2f;
+}
+
+[theme='dark'] .ud-skeleton-document-row,
+[data-theme='dark'] .ud-skeleton-document-row {
+	border-color: rgba(255, 255, 255, 0.08);
+}
+
+[theme='dark'] .ud-skeleton-shimmer,
+[data-theme='dark'] .ud-skeleton-shimmer {
+	background: linear-gradient(90deg, #2b2b3f 0%, #3a3a52 20%, #2b2b3f 40%, #2b2b3f 100%);
+	background-size: 220px 100%;
+}

@@ -5,7 +5,7 @@ import SubHeader, { SubHeaderLeft, SubheaderSeparator } from '../../layout/SubHe
 import { CardTitle } from '../../components/bootstrap/Card';
 import Page from '../../layout/Page/Page';
 import BackButton from '../../components/CustomComponent/Buttons/BackButton';
-import AbaciLoader from '../../components/AbaciLoader/AbaciLoader';
+import ScheduleDetailSkeleton from '../../components/CustomComponent/Skeleton/ScheduleDetailSkeleton';
 import { authAxios } from '../../axiosInstance';
 import useToasterNotification from '../../hooks/useToasterNotification';
 import ScheduleDetails from './ScheduleDetails';
@@ -68,14 +68,8 @@ const ScheduleDetailPage = () => {
 				</SubHeaderLeft>
 			</SubHeader>
 			<Page container='fluid' className='position-relative'>
-				{loading && (
-					<div
-						className='d-flex justify-content-center align-items-center py-5'
-						style={{ minHeight: '40vh' }}>
-						<AbaciLoader />
-					</div>
-				)}
-				{!loading && (
+				{loading && <ScheduleDetailSkeleton />}
+				<div className={loading ? 'd-none' : undefined}>
 					<div className='row'>
 						{id ? (
 							<div className='col-12 mb-4'>
@@ -96,7 +90,7 @@ const ScheduleDetailPage = () => {
 							<ScheduleMonthlyCalendarSection scheduleId={id} />
 						</div>
 					</div>
-				)}
+				</div>
 			</Page>
 		</PageWrapper>
 	);
