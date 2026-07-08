@@ -42,6 +42,55 @@ export const getAttendanceStatusMeta = (status: string | undefined) => {
 	);
 };
 
+/** Converts a duration in seconds to `08h30m` or `04h` when minutes are zero. */
+export const formatSecondsToHms = (totalSeconds: number): string => {
+	const secs = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+	const totalMinutes = Math.floor(secs / 60);
+	return formatMinutesToHms(totalMinutes);
+};
+
+/** API duration fields such as `worked_mins` are stored in minutes. Omits minutes when zero (e.g. `04h`). */
+export const formatMinutesToHms = (totalMinutes: number): string => {
+	const mins = Math.max(0, Math.floor(Number(totalMinutes) || 0));
+	const hrs = Math.floor(mins / 60);
+	const m = mins % 60;
+	const hoursPart = `${String(hrs).padStart(2, '0')}h`;
+	return m > 0 ? `${hoursPart}${String(m).padStart(2, '0')}m` : hoursPart;
+};
+
+/** Matches worked/target strings such as `09h06m/08h` or `08h/08h`. */
+export const WORKED_TIME_DISPLAY_LINE_RE = /^\d{2}h(\d{2}m)?\/\d{2}h(\d{2}m)?$/;
+
+export const formatWorkedMinsPair = (workedRaw: unknown, targetRaw: unknown): string | null => {
+	const worked = Number(workedRaw);
+	const target = Number(targetRaw);
+	if (!Number.isFinite(worked) || worked <= 0) return null;
+	if (!Number.isFinite(target) || target < 0) return null;
+	return `${formatMinutesToHms(worked)}/${formatMinutesToHms(target)}`;
+};
+
+export const formatAttendanceWorkedTime = (row: any): string =>
+	formatWorkedMinsPair(
+		row?.worked_mins ?? row?.worked_minutes,
+		row?.target_work_mins ?? row?.target_work_minutes,
+	) ?? '----';
+
+export const formatAttendanceOtTime = (row: any): string => {
+	const raw = row?.ot_mins ?? row?.ot_minutes ?? row?.overtime_mins ?? row?.overtime_minutes;
+	const n = Number(raw);
+	if (!Number.isFinite(n) || n <= 0) return '----';
+	return formatMinutesToHms(n);
+};
+
+export const getWorkedTimeFromAttendance = (att: unknown): string | null => {
+	if (!att || typeof att !== 'object' || Array.isArray(att)) return null;
+	const row = att as Record<string, unknown>;
+	return formatWorkedMinsPair(
+		row.worked_mins ?? row.worked_minutes,
+		row.target_work_mins ?? row.target_work_minutes,
+	);
+};
+
 /** Light tint of a status/accent color for calendar cells and chips (`#rrggbb` + alpha hex). */
 export const statusColorLightBackground = (color: string, opacityHex = '22') => {
 	const c = String(color || '').trim();

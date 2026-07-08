@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import dayjs from 'dayjs';
 import { Calendar, dayjsLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { statusColorLightBackground } from '../../pages/Attendance/attendanceStatusUtils';
+import { statusColorLightBackground, WORKED_TIME_DISPLAY_LINE_RE } from '../../pages/Attendance/attendanceStatusUtils';
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -95,7 +95,11 @@ const CustomCalendar = ({
 			);
 		}
 
-		const workedLineIndex = detailLines.findIndex((line) => /^Worked:/i.test(line.trim()));
+		const workedLineIndex = detailLines.findIndex(
+			(line) =>
+				WORKED_TIME_DISPLAY_LINE_RE.test(line.trim()) ||
+				/^Worked:/i.test(line.trim()),
+		);
 		const workedLine = workedLineIndex >= 0 ? detailLines[workedLineIndex] : null;
 		const otherDetails =
 			workedLineIndex >= 0

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import EventBusyOutlinedIcon from '@mui/icons-material/EventBusyOutlined';
@@ -145,14 +146,19 @@ type StatCardConfig = {
 	value: number;
 	tone: DashboardTone;
 	icon: React.ReactNode;
+	tooltip: string;
 };
 
-const StatCard = ({ label, value, tone, icon }: StatCardConfig) => (
-	<div className='hr-dashboard__stat-card' style={dashboardStatStyle(tone)}>
-		<div className='hr-dashboard__stat-icon'>{icon}</div>
-		<div className='hr-dashboard__stat-value'>{value}</div>
-		<div className='hr-dashboard__stat-label'>{label}</div>
-	</div>
+const StatCard = ({ label, value, tone, icon, tooltip }: StatCardConfig) => (
+	<Tooltip title={tooltip} arrow placement='top'>
+		<div
+			className='hr-dashboard__stat-card w-100'
+			style={{ ...dashboardStatStyle(tone), cursor: 'help' }}>
+			<div className='hr-dashboard__stat-icon'>{icon}</div>
+			<div className='hr-dashboard__stat-value'>{value}</div>
+			<div className='hr-dashboard__stat-label'>{label}</div>
+		</div>
+	</Tooltip>
 );
 
 type ProgressRowProps = {
@@ -198,30 +204,35 @@ const buildStatCards = (
 			value: present,
 			tone: DASHBOARD_ATTENDANCE_THEME.present,
 			icon: <CheckCircleOutlineIcon />,
+			tooltip: 'Employees marked present for today based on their attendance status.',
 		},
 		{
 			label: 'Absent',
 			value: absent,
 			tone: DASHBOARD_ATTENDANCE_THEME.absent,
 			icon: <CancelOutlinedIcon />,
+			tooltip: 'Employees marked absent today who were scheduled or expected to work.',
 		},
 		{
 			label: 'On leave',
 			value: leave,
 			tone: DASHBOARD_ATTENDANCE_THEME.leave,
 			icon: <EventBusyOutlinedIcon />,
+			tooltip: 'Employees on approved leave for today.',
 		},
 		{
 			label: 'Clocked in',
 			value: clockValue(totalClock, 'clocked_in'),
 			tone: DASHBOARD_ATTENDANCE_THEME.clockIn,
 			icon: <LoginOutlinedIcon />,
+			tooltip: 'Employees who have clocked in today and are currently active or still in.',
 		},
 		{
 			label: 'Clocked out',
 			value: clockValue(totalClock, 'clocked_out'),
 			tone: DASHBOARD_ATTENDANCE_THEME.clockOut,
 			icon: <LogoutOutlinedIcon />,
+			tooltip: 'Employees who have recorded a clock-out for today.',
 		},
 	];
 
@@ -231,6 +242,7 @@ const buildStatCards = (
 			value: summary.total_schedules,
 			tone: DASHBOARD_ATTENDANCE_THEME.schedules,
 			icon: <CalendarMonthOutlinedIcon />,
+			tooltip: 'Total number of schedules active for today.',
 		});
 	}
 

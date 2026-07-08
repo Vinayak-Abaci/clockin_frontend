@@ -6,6 +6,7 @@ import {
 	ATTENDANCE_REMOVED_META,
 	isAttendanceDeleted,
 	calendarEventStyleFromColor,
+	getWorkedTimeFromAttendance,
 } from '../../../pages/Attendance/attendanceStatusUtils';
 import {
 	shiftLabelsFromShiftsField,
@@ -238,18 +239,6 @@ const ReusableScheduleCalendar = ({
 		return 0;
 	};
 
-	const getTotalWorkedHrs = (row: any): number | null => {
-		const att = row?.attendance;
-		if (att && typeof att === 'object' && !Array.isArray(att)) {
-			const raw = att.total_worked_hrs ?? att.total_worked_hours;
-			const n = Number(raw);
-			if (Number.isFinite(n) && n >= 0) return n;
-		}
-		const top = Number(row?.total_worked_hrs ?? row?.total_worked_hours);
-		if (Number.isFinite(top) && top >= 0) return top;
-		return null;
-	};
-
 	const buildScheduleEventTitle = (row: any): string => {
 		const lines: string[] = [];
 		const sd = row?.special_day;
@@ -334,9 +323,9 @@ const ReusableScheduleCalendar = ({
 		const statusMeta = getStatusMeta(dayStatus);
 		if (!statusMeta) return;
 		let title = statusMeta.label;
-		const workedHrs = getTotalWorkedHrs(row);
-		if (workedHrs != null && workedHrs > 0) {
-			title = `${title}\nWorked: ${workedHrs}hrs`;
+		const workedTime = getWorkedTimeFromAttendance(row?.attendance);
+		if (workedTime) {
+			title = `${title}\n${workedTime}`;
 		}
 		if (calendarType === 'group') {
 			const counts = getGroupDayScheduleCounts(row);

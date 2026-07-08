@@ -18,6 +18,8 @@ import {
 	attendanceRowUserId,
 	eventsFromAttendanceRow,
 	formatAttendanceUserName,
+	formatAttendanceOtTime,
+	formatAttendanceWorkedTime,
 	getAttendanceStatusMeta,
 } from './attendanceStatusUtils';
 
@@ -62,12 +64,15 @@ const AttendanceTableComponent = ({ tableRef, urlBackup, editModalToggle }: any)
 			},
 			{ title: 'Clock Out', field: 'clock_out', render: (rowData: any) => getEventTime(rowData, 'CLOCK_OUT') },
 			{
-				title: 'Total Worked Hours',
-				field: 'total_worked_hrs',
-				render: (rowData: any) => rowData?.total_worked_hrs ? `${rowData?.total_worked_hrs} hrs` : '----',
+				title: 'Worked Time',
+				field: 'worked_mins',
+				render: (rowData: any) => formatAttendanceWorkedTime(rowData),
 			},
-			
-			
+			{
+				title: 'OT',
+				field: 'ot_mins',
+				render: (rowData: any) => formatAttendanceOtTime(rowData),
+			},
 			{
 				title: 'Status',
 				field: 'status',

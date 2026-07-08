@@ -1330,7 +1330,7 @@ const UserCalendarDetailModal = ({
 									<AttendanceEventsTimeline
 										events={attendanceEvents}
 										maxHeight='min(24rem, 50vh)'
-										showWorkedHrsTillNow
+										showWorkedMinsTillNow
 										showActions={canManageAttendance}
 										actionDisabled={attendanceLoading || clockActionLoading || isFutureDay}
 										onEdit={handleEditAttendanceEvent}
