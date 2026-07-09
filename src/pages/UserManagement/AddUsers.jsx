@@ -12,6 +12,7 @@ import UserFields from '../../components/MasterComponents/Usermanagement/UserFie
 import useToasterNotification from '../../hooks/useToasterNotification';
 import ImageCropper from '../../components/CustomComponent/ImageCropper';
 import AuthContext from '../../contexts/authContext';
+import { appendTenantRoleFormFields } from '../../helpers/roleToggleUtils';
 
 const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 	const {
@@ -25,7 +26,7 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 		formState: { errors },
 	} = useForm({
 		defaultValues: {
-			user_type: 'user',
+			tenant_role: null,
 		},
 	});
 	const [waitingForAxios, setwaitingForAxios] = useState(false);
@@ -36,15 +37,14 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 	const [reportingManagerOptions, setReportingManagerOptions] = useState([]);
 	const [hrManagerOptions, setHrManagerOptions] = useState([]);
 	const [scheduleOptions, setScheduleOptions] = useState([]);
-	const [roleOptions, setRoleOptions] = useState([]);
 	const { userData } = useContext(AuthContext);
 
 	useEffect(() => {
 		if (isOpen) {
 			reset({
-				user_type: null,
+				tenant_role: null,
 			});
-			setValue('user_type', null);
+			setValue('tenant_role', null);
 			setImage(null);
 		}
 	}, [isOpen, reset, setValue]);
@@ -88,19 +88,6 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 			})
 			.catch(() => setScheduleOptions([]));
 
-		authAxios
-			.get('api/hr/roles/?paginate=off')
-			.then((res) => {
-				const raw = Array.isArray(res?.data) ? res.data : res?.data?.results || [];
-				setRoleOptions(
-					raw.map((item) => ({
-						label: item?.role_name || item?.name || `Role ${item?.id}`,
-						value: item?.id,
-					})),
-				);
-			})
-			.catch(() => setRoleOptions([]));
-
 		const accountsParams = { paginate: 'off' };
 		const selfId = userData?.id;
 		const toOptions = (list) =>
@@ -116,10 +103,10 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 				}));
 		Promise.all([
 			authAxios.get('api/hr/accounts/', {
-				params: { ...accountsParams, user_type__role_name: 'Manager' },
+				params: { ...accountsParams, is_manager: true },
 			}),
 			authAxios.get('api/hr/accounts/', {
-				params: { ...accountsParams, user_type__role_name: 'HR' },
+				params: { ...accountsParams, is_hr: true },
 			}),
 		])
 			.then(([reportingRes, hrRes]) => {
@@ -160,7 +147,7 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 		appendFormField(formData, 'country', data?.country);
 		appendFormField(formData, 'personal_contact_number', data?.personal_contact_number);
 		appendFormField(formData, 'office_contact_number', data?.office_contact_number);
-		appendFormField(formData, 'user_type', data?.user_type?.value);
+		appendTenantRoleFormFields(formData, data?.tenant_role);
 		appendFormField(formData, 'group', data?.group?.value);
 		appendFormField(formData, 'site', data?.site?.value);
 		appendFormField(formData, 'reporting_manager', data?.reporting_manager?.value);
@@ -224,7 +211,6 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 							getValues={getValues}
 							groupOptions={groupOptions}
 							siteOptions={siteOptions}
-							roleOptions={roleOptions}
 							reportingManagerOptions={reportingManagerOptions}
 							hrManagerOptions={hrManagerOptions}
 							scheduleOptions={scheduleOptions}

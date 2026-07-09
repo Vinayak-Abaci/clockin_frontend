@@ -14,17 +14,19 @@ const MAINROUTE={
 	GroupDetail: lazy(() => import('../pages/UserGroups/GroupDetailPage')),
 	Schedule: lazy(() => import('../pages/Schedule/index')),
 	ScheduleDetail: lazy(() => import('../pages/Schedule/ScheduleDetailPage')),
+	SiteDetail: lazy(() => import('../pages/Site/SiteDetails/SiteDetailPage')),
 	Shift: lazy(() => import('../pages/Shift/index')),
 	Doors: lazy(() => import('../pages/Doors/index')),
 	ScheduleComponentDemo: lazy(() => import('../pages/ScheduleComponentDemo/index')),
 	UserDetails: lazy(() => import('../pages/UserManagement/UserManagementPage')),
 	LeaveRequests: lazy(() => import('../pages/LeaveManagement/LeaveRequestsPage')),
+	AssetRequests: lazy(() => import('../pages/AssetManagement/AssetRequestsPage')),
 	LeaveTypes: lazy(() => import('../pages/LeaveManagement/LeaveTypesPage')),
 	LeaveManagement: lazy(() => import('../pages/LeaveManagement/index')),
 	Attendance: lazy(() => import('../pages/Attendance/index')),
 	UserSchedule: lazy(() => import('../pages/UserSchedule')),
 	EventLog: lazy(() => import('../pages/EventLog/index')),
-	RoleManagement: lazy(() => import('../pages/RoleManagement/index')),
+	// RoleManagement: lazy(() => import('../pages/RoleManagement/index')),
 	Settings: lazy(() => import('../pages/Settings/index')),
 	Registrations: lazy(() => import('../pages/PlatformAdmin/Registrations/index')),
 	Customers: lazy(() => import('../pages/PlatformAdmin/Customers/index')),
@@ -87,6 +89,11 @@ const RouteConfig: CustomRouteConfig[] = [
 		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
 	{
+		path: pagesNotInSideBar.SiteTemplateDetail.path,
+		element: <MAINROUTE.SiteDetail />,
+		allowedTo: ADMIN_CONSOLE_ROLES,
+	},
+	{
 		path: allRoutesObject.Schedule.path,
 		element: <MAINROUTE.Schedule />,
 		allowedTo: ADMIN_CONSOLE_ROLES,
@@ -114,6 +121,11 @@ const RouteConfig: CustomRouteConfig[] = [
 	{
 		path: allRoutesObject.LeaveRequests.path,
 		element: <MAINROUTE.LeaveRequests />,
+		allowedTo: SELF_MODE_ROUTES,
+	},
+	{
+		path: allRoutesObject.AssetRequests.path,
+		element: <MAINROUTE.AssetRequests />,
 		allowedTo: SELF_MODE_ROUTES,
 	},
 	{
@@ -146,11 +158,11 @@ const RouteConfig: CustomRouteConfig[] = [
 		element: <MAINROUTE.EventLog />,
 		allowedTo: ADMIN_CONSOLE_ROLES,
 	},
-	{
-		path: allRoutesObject.RoleManagement.path,
-		element: <MAINROUTE.RoleManagement />,
-		allowedTo: ADMIN_CONSOLE_ROLES,
-	},
+	// {
+	// 	path: allRoutesObject.RoleManagement.path,
+	// 	element: <MAINROUTE.RoleManagement />,
+	// 	allowedTo: ADMIN_CONSOLE_ROLES,
+	// },
 	{
 		path: allRoutesObject.Settings.path,
 		element: <MAINROUTE.Settings />,

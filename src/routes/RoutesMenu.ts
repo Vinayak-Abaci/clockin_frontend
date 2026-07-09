@@ -33,10 +33,10 @@ export const allRoutesObject = {
 		id: 'Doors',
 		path: '/doors',
 	},
-	RoleManagement: {
-		id: 'RoleManagement',
-		path: '/roles',
-	},
+	// RoleManagement: {
+	// 	id: 'RoleManagement',
+	// 	path: '/roles',
+	// },
 	Registrations: {
 		id: 'Registrations',
 		path: '/registrations',
@@ -60,6 +60,10 @@ export const allRoutesObject = {
 	LeaveRequests: {
 		id: 'LeaveRequests',
 		path: '/leave-requests',
+	},
+	AssetRequests: {
+		id: 'AssetRequests',
+		path: '/asset-requests',
 	},
 	LeaveTypes: {
 		id: 'LeaveTypes',
@@ -179,17 +183,23 @@ export const CompanyAdminRoutes = {
 		path: '/doors',
 		icon: 'DoorFront',
 	},
-	RoleManagement: {
-		id: 'RoleManagement',
-		text: 'Roles',
-		path: '/roles',
-		icon: 'Badge',
-	},
+	// RoleManagement: {
+	// 	id: 'RoleManagement',
+	// 	text: 'Roles',
+	// 	path: '/roles',
+	// 	icon: 'Badge',
+	// },
 	LeaveRequests: {
 		id: 'LeaveRequests',
 		text: 'Leave Requests',
 		path: '/leave-requests',
 		icon: 'Event',
+	},
+	AssetRequests: {
+		id: 'AssetRequests',
+		text: 'Asset Requests',
+		path: '/asset-requests',
+		icon: 'Inventory',
 	},
 	LeaveTypes: {
 		id: 'LeaveTypes',
@@ -243,6 +253,12 @@ export const UserRoutes = {
 		text: 'Leave Requests',
 		path: '/leave-requests',
 		icon: 'Event',
+	},
+	AssetRequests: {
+		id: 'AssetRequests',
+		text: 'Asset Requests',
+		path: '/asset-requests',
+		icon: 'Inventory',
 	},
 	Attendance: {
 		id: 'Attendance',
@@ -302,9 +318,9 @@ export const PartnerRoutes = {
 	},
 };
 
-/** HR and Manager consoles use the same sidebar as company admin (page access is gated in contentRoutes). */
 export const HRRoutes = CompanyAdminRoutes;
 export const ManagerRoutes = CompanyAdminRoutes;
+
 
 export const roleWiseRoutes: Record<string, any> = {
 	Admin: CompanyAdminRoutes,
@@ -347,6 +363,12 @@ export const pagesNotInSideBar = {
 		id: 'ScheduleTemplateDetail',
 		text: 'Schedule details',
 		path: '/schedule-details/:id',
+		icon: '',
+	},
+	SiteTemplateDetail: {
+		id: 'SiteTemplateDetail',
+		text: 'Site details',
+		path: '/site-details/:id',
 		icon: '',
 	},
 	GroupTemplateDetail: {

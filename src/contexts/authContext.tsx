@@ -90,7 +90,12 @@ const setLogOut = () => {
             ...resolvedUser,
             is_platform_admin:
               response.data?.is_platform_admin ?? profileUser?.is_platform_admin ?? false,
-            is_platform_partner: response.data?.is_platform_partner ?? profileUser?.is_platform_partner ?? false,
+            is_platform_partner:
+              response.data?.is_platform_partner ?? profileUser?.is_platform_partner ?? false,
+            is_tenant_admin:
+              response.data?.is_tenant_admin ?? profileUser?.is_tenant_admin ?? false,
+            is_hr: response.data?.is_hr ?? profileUser?.is_hr ?? false,
+            is_manager: response.data?.is_manager ?? profileUser?.is_manager ?? false,
           });
           
         

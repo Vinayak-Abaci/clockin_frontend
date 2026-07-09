@@ -36,7 +36,9 @@ export type UserCrudModel = {
 	country: string;
 	personal_contact_number: string;
 	office_contact_number: string;
-	user_type: number;
+	is_tenant_admin?: boolean;
+	is_hr?: boolean;
+	is_manager?: boolean;
 	group: number;
 	site: number;
 };

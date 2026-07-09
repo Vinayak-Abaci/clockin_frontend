@@ -32,7 +32,6 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
         const url = 'api/users';
         const payload={
             username:data?.username||'',
-            user_type:data?.user_type||'',
             preferred_name:data?.preferred_name||null,
             access_category:{
                 category:data?.access_category?.value||''

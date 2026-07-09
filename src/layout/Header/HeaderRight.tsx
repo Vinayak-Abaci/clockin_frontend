@@ -49,7 +49,7 @@ const MainHeaderRight: FC<IMainHeaderRightProps> = ({ beforeChildren, afterChild
 				<div className='col-auto'>
 				<DateAndTimeComponent />
 			</div>
-			{canUseRoleToggle(userData?.user_type) && (
+			{canUseRoleToggle(userData) && (
 				<div className='col-auto'>
 					<ToggleButton />
 				</div>

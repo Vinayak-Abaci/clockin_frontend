@@ -14,19 +14,10 @@ import ImageCropper from '../../components/CustomComponent/ImageCropper';
 import AuthContext from '../../contexts/authContext';
 import CustomSpinner from '../../components/CustomSpinner/CustomSpinner';
 import { GenderOptions } from '../../helpers/constants';
-
-const mapUserTypeToSelect = (user, roleOptions = []) => {
-	const ut = user?.user_type;
-	if (ut == null) return null;
-	const id = typeof ut === 'object' ? ut.id : ut;
-	const fromOptions = roleOptions.find((o) => Number(o.value) === Number(id));
-	if (fromOptions) return fromOptions;
-	if (typeof ut === 'object') {
-		const label = ut.role_name || ut.name || `Role ${id}`;
-		return id != null ? { label, value: id } : null;
-	}
-	return null;
-};
+import {
+	appendTenantRoleFormFields,
+	mapAccountToTenantRoleSelect,
+} from '../../helpers/roleToggleUtils';
 
 const mapGenderSelect = (g) => {
 	if (g == null || g === '') return null;
@@ -88,7 +79,7 @@ const resolveScheduleIds = (user) => {
 	return single != null ? [single] : [];
 };
 
-const buildFormValuesFromAccount = (user, scheduleOptions, reportingOpts, hrOpts, roleOpts) => {
+const buildFormValuesFromAccount = (user, scheduleOptions, reportingOpts, hrOpts) => {
 	const scheduleId = resolveScheduleId(user);
 	const schedule =
 		scheduleId != null
@@ -113,7 +104,7 @@ const buildFormValuesFromAccount = (user, scheduleOptions, reportingOpts, hrOpts
 		personal_contact_number: user?.personal_contact_number || '',
 		office_contact_number:
 			user?.office_contact_number || user?.user_data?.user_contact_phone || '',
-		user_type: mapUserTypeToSelect(user, roleOpts),
+		tenant_role: mapAccountToTenantRoleSelect(user),
 		group:
 			user?.group?.id != null
 				? { label: user.group.name || '', value: user.group.id }
@@ -149,7 +140,7 @@ const buildAccountFormData = (data, image, initialScheduleIds = []) => {
 	appendFormField(formData, 'country', data?.country);
 	appendFormField(formData, 'personal_contact_number', data?.personal_contact_number);
 	appendFormField(formData, 'office_contact_number', data?.office_contact_number);
-	appendFormField(formData, 'user_type', data?.user_type?.value);
+	appendTenantRoleFormFields(formData, data?.tenant_role);
 	appendFormField(formData, 'group', data?.group?.value);
 	appendFormField(formData, 'site', data?.site?.value);
 	appendFormField(formData, 'reporting_manager', data?.reporting_manager?.value);
@@ -205,7 +196,6 @@ const EditUser = ({ isOpen, setIsOpen, tableRef, userId, title }) => {
 	const [reportingManagerOptions, setReportingManagerOptions] = useState([]);
 	const [hrManagerOptions, setHrManagerOptions] = useState([]);
 	const [scheduleOptions, setScheduleOptions] = useState([]);
-	const [roleOptions, setRoleOptions] = useState([]);
 	const initialScheduleIdsRef = useRef([]);
 	const { userData } = useContext(AuthContext);
 
@@ -231,17 +221,16 @@ const EditUser = ({ isOpen, setIsOpen, tableRef, userId, title }) => {
 			const selfId = userData?.id;
 			const accountsParams = { paginate: 'off' };
 			try {
-				const [groupsRes, sitesRes, schedulesRes, rolesRes, reportingRes, hrRes, userRes] =
+				const [groupsRes, sitesRes, schedulesRes, reportingRes, hrRes, userRes] =
 					await Promise.all([
 						authAxios.get('api/hr/groups/?paginate=off'),
 						authAxios.get('api/hr/sites/?paginate=off'),
 						authAxios.get('api/hr/schedules/?paginate=off'),
-						authAxios.get('api/hr/roles/?paginate=off'),
 						authAxios.get('api/hr/accounts/', {
-							params: { ...accountsParams, user_type__role_name: 'Manager' },
+							params: { ...accountsParams, is_manager: true },
 						}),
 						authAxios.get('api/hr/accounts/', {
-							params: { ...accountsParams, user_type__role_name: 'HR' },
+							params: { ...accountsParams, is_hr: true },
 						}),
 						authAxios.get(`api/hr/accounts/${userId}/`),
 					]);
@@ -273,25 +262,17 @@ const EditUser = ({ isOpen, setIsOpen, tableRef, userId, title }) => {
 				const hrList = Array.isArray(hrRes?.data) ? hrRes.data : hrRes?.data?.results || [];
 				const reportingOpts = toOptions(reportingList, selfId);
 				const hrOpts = toOptions(hrList, selfId);
-				const rawRoles = Array.isArray(rolesRes?.data)
-					? rolesRes.data
-					: rolesRes?.data?.results || [];
-				const roleOpts = rawRoles.map((item) => ({
-					label: item?.role_name || item?.name || `Role ${item?.id}`,
-					value: item?.id,
-				}));
 
 				setGroupOptions(groupOpts);
 				setSiteOptions(siteOpts);
 				setScheduleOptions(schedOpts);
-				setRoleOptions(roleOpts);
 				setReportingManagerOptions(reportingOpts);
 				setHrManagerOptions(hrOpts);
 
 				const user = userRes?.data;
 				if (user) {
 					initialScheduleIdsRef.current = resolveScheduleIds(user);
-					reset(buildFormValuesFromAccount(user, schedOpts, reportingOpts, hrOpts, roleOpts));
+					reset(buildFormValuesFromAccount(user, schedOpts, reportingOpts, hrOpts));
 					setImage(resolveUserAvatarSource(user));
 				}
 			} catch (e) {
@@ -365,7 +346,6 @@ const EditUser = ({ isOpen, setIsOpen, tableRef, userId, title }) => {
 											getValues={getValues}
 											groupOptions={groupOptions}
 											siteOptions={siteOptions}
-											roleOptions={roleOptions}
 											reportingManagerOptions={reportingManagerOptions}
 											hrManagerOptions={hrManagerOptions}
 											scheduleOptions={scheduleOptions}

@@ -25,10 +25,9 @@ const ToggleButton = () => {
 	const navigate = useNavigate();
 	const togglerButton = useSelector((state: any) => state.authSlice.account_toggle_button);
 	const mode = togglerButton || 'Admin';
-	const role = userData?.user_type || 'Admin';
-	const privilegedLabel = getPrivilegedToggleLabel(role);
+	const role = getPrivilegedToggleLabel(userData);
 
-	const showRoleToggle = canUseRoleToggle(userData?.user_type);
+	const showRoleToggle = canUseRoleToggle(userData);
 
 	useEffect(() => {
 		if (!showRoleToggle) return;
@@ -75,7 +74,7 @@ const ToggleButton = () => {
 					<span className={classNames('role-switch-option-icon', { 'is-active': !isSelf })}>
 						<Icon icon='AdminPanelSettings' size='lg' />
 					</span>
-					<span className='role-switch-option-label'>{privilegedLabel}</span>
+					<span className='role-switch-option-label'>{role}</span>
 				</button>
 			</div>
 		</div>

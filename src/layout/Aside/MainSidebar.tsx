@@ -7,22 +7,27 @@ import ThemeContext from '../../contexts/themeContext';
 import Aside, { AsideBody, AsideFoot, AsideHead } from './Aside';
 import AuthContext from '../../contexts/authContext';
 import { SelfRoutes, PlatformAdminRoutes, PartnerRoutes, roleWiseRoutes } from '../../routes/RoutesMenu';
-import { isPlatformPartner, isPlatformAdmin, isSelfEquivalentMode, resolveUserTypeString } from '../../helpers/roleToggleUtils';
+import {
+	isPlatformPartner,
+	isPlatformAdmin,
+	isSelfEquivalentMode,
+	getEffectiveUserTypeForRoutes,
+} from '../../helpers/roleToggleUtils';
 
 const MainSidebar = () => {
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const { asideStatus, setAsideStatus } = useContext(ThemeContext);
 	const mode = accountToggle || 'Admin';
-	const role = resolveUserTypeString(userData?.user_type) || 'Admin';
+	const effectiveRole = getEffectiveUserTypeForRoutes(userData, mode);
 
 	const navigationMenu = isPlatformAdmin(userData)
 		? PlatformAdminRoutes
 		: isPlatformPartner(userData)
 			? PartnerRoutes
-			: isSelfEquivalentMode(userData?.user_type, mode)
+			: isSelfEquivalentMode(userData, mode)
 				? SelfRoutes
-				: roleWiseRoutes[role] || roleWiseRoutes.Admin || {};
+				: roleWiseRoutes[effectiveRole] || roleWiseRoutes.Admin || {};
 
 	return (
 		<Aside >
@@ -30,7 +35,7 @@ const MainSidebar = () => {
 				<Brand asideStatus={asideStatus} setAsideStatus={setAsideStatus} isDark={false} />
 			</AsideHead>
 			<AsideBody>					
-		    <Navigation key={mode === 'Self' ? 'self' : role} menu={navigationMenu} id='aside-dashboard'  className='user-select-none' />
+		    <Navigation key={mode === 'Self' ? 'self' : effectiveRole} menu={navigationMenu} id='aside-dashboard'  className='user-select-none' />
 			<NavigationLine />
 			
 			</AsideBody>

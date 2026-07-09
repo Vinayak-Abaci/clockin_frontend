@@ -2,6 +2,7 @@ import React from 'react';
 import FormGroup from '../../bootstrap/forms/FormGroup';
 import ReactSelectComponent from '../../CustomComponent/Select/ReactSelectComponent';
 import { GenderOptions } from '../../../helpers/constants';
+import { TENANT_USER_ROLE_OPTIONS } from '../../../helpers/roleToggleUtils';
 
 const UserFields = ({
 	register,
@@ -10,7 +11,6 @@ const UserFields = ({
 	control,
 	groupOptions,
 	siteOptions,
-	roleOptions = [],
 	reportingManagerOptions = [],
 	hrManagerOptions = [],
 	scheduleOptions = [],
@@ -148,10 +148,10 @@ const UserFields = ({
 					control={control}
 					name='Role *'
 					isMulti={false}
-					field_name='user_type'
+					field_name='tenant_role'
 					getValues={getValues}
 					errors={errors}
-					options={roleOptions}
+					options={TENANT_USER_ROLE_OPTIONS}
 					isRequired
 				/>
 			</div>

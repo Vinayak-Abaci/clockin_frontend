@@ -7,7 +7,7 @@ import Button from '../../../components/bootstrap/Button';
 export const APPROVER_TYPE_OPTIONS = [
 	{ label: 'Reporting Manager', value: 'REPORTING_MANAGER' },
 	{ label: 'HR', value: 'HR' },
-	{ label: 'Group Lead', value: 'GROUP_LEAD' },
+	{ label: 'Group Contact', value: 'GROUP_CONTACT' },
 ];
 
 type LeaveTypeApprovalWorkflowProps = {
