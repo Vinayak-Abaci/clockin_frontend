@@ -14,6 +14,7 @@ import usePermissionHook from '../../../hooks/userPermissionHook';
 import CustomBadge from '../../CustomComponent/CustomBadge';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../../contexts/authContext';
+import { resolveTenantRouteRole } from '../../../helpers/roleToggleUtils';
 import { useSelector } from 'react-redux';
 import EditButton from '../../CustomComponent/Buttons/EditButton';
 import ImageCell from '../../CustomComponent/Imagecell';
@@ -32,8 +33,7 @@ const UserManagementTableComponent = (props) => {
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle || 'Admin';
-	const canEditUser =
-		userData?.user_type === 'Admin' && mode === 'Admin' 
+	const canEditUser = resolveTenantRouteRole(userData) === 'Admin' && mode === 'Admin';
 	const navigate = useNavigate();
 	// useEffect(() => {
 	// 	tableRef.current.onQueryChange();
@@ -70,9 +70,13 @@ const UserManagementTableComponent = (props) => {
 					: '----',
 		},
 		{
-			title: 'User type',
-			field: 'user_type__name',
-			render: (rowData) => rowData?.user_type?.name||'----',
+			title: 'Role',
+			field: 'tenant_role',
+			sorting: false,
+			render: (rowData) => {
+				const role = resolveTenantRouteRole(rowData);
+				return role === 'user' ? 'Employee' : role;
+			},
 		},
 		{
 			title: 'Gender',

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MaterialTable from '@material-table/core';
 import { ThemeProvider } from '@mui/material/styles';
 import PropTypes from 'prop-types';
@@ -10,21 +11,17 @@ import StatusButton from '../../components/CustomComponent/Buttons/StatusButton'
 import CustomBadge from '../../components/CustomComponent/CustomBadge';
 import { formatFilters } from '../../helpers/functions';
 import useToasterNotification from '../../hooks/useToasterNotification';
-import ResendButton from '../../components/CustomComponent/Buttons/ResendButton';
-import usePermissionHook from '../../hooks/userPermissionHook';
-import Moments from '../../helpers/Moment';
 import EditButton from '../../components/CustomComponent/Buttons/EditButton';
 
 const SiteManagementTableComponent = (props) => {
 	const { tableRef, editModalToggle ,urlBackup,tenant,activeTab} = props;
+	const navigate = useNavigate();
 	const isInitialRender = useRef(true);
 	const [filterEnabled, setFilterEnabled] = useState(false);
 	const [pageSize, setPageSize] = useState(5);
 	const [sortState, setSortState] = useState({ orderBy: null, orderDirection: 'asc' });
 	const { theme, rowStyles, headerStyles } = useTablestyle();
 	const { showErrorNotification } = useToasterNotification();
-    const canManageUserDetails=usePermissionHook('manage_user');
-    const canViewUserDetails=usePermissionHook('view_user_details');
 
 
 
@@ -115,7 +112,9 @@ const SiteManagementTableComponent = (props) => {
 					columns={columns}
 					tableRef={tableRef}
 					onChangeRowsPerPage={setPageSize}
-					onRowClick={(event, rowData)=>canViewUserDetails&&editModalToggle(rowData.id)}
+					onRowClick={(_event, rowData) => {
+						if (rowData?.id != null) navigate(`/site-details/${rowData.id}`);
+					}}
 					onOrderChange={(orderBy, orderDirection) => {
 						setSortState({ orderBy, orderDirection });
 					}}
@@ -172,7 +171,10 @@ const SiteManagementTableComponent = (props) => {
 					]}
 					options={{
 						headerStyle: headerStyles(),
-						rowStyle: rowStyles(),
+						rowStyle: () => ({
+							...rowStyles(),
+							cursor: 'pointer',
+						}),
 						actionsColumnIndex: -1,
 						debounceInterval: 500,
 						filtering: filterEnabled,

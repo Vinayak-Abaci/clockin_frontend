@@ -31,7 +31,7 @@ const ContentRoutes = () => {
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle || 'Admin';
-	const effectiveUserType = getEffectiveUserTypeForRoutes(userData?.user_type, mode, userData);
+	const effectiveUserType = getEffectiveUserTypeForRoutes(userData, mode);
 	const platformAdmin = isPlatformAdmin(userData);
 	const partner = isPlatformPartner(userData);
 

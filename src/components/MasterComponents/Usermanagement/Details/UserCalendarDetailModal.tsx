@@ -33,6 +33,7 @@ import {
 	summarizeShiftLabels,
 } from '../../../../pages/Schedule/scheduleShiftUtils';
 import useDarkMode from '../../../../hooks/useDarkMode';
+import { resolveTenantRouteRole } from '../../../../helpers/roleToggleUtils';
 type UserCalendarDetailModalProps = {
 	isOpen: boolean;
 	setIsOpen: (open: boolean) => void;
@@ -425,7 +426,7 @@ const UserCalendarDetailModal = ({
 	const apiDate = detail?.date != null ? String(detail.date).slice(0, 10) : toYmd(selectedDate);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
-	const isAdmin = userData?.user_type === 'Admin' && mode === 'Admin';
+	const isAdmin = resolveTenantRouteRole(userData) === 'Admin' && mode === 'Admin';
 	const canPunchClock =
 		userId != null &&
 		userId !== '' &&
