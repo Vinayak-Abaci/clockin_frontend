@@ -9,20 +9,21 @@ import { authAxios } from '../../../axiosInstance';
 import useTablestyle from '../../../hooks/useTablestyles';
 import { formatFilters } from '../../../helpers/functions';
 import useToasterNotification from '../../../hooks/useToasterNotification';
-import { statusColorCodes } from '../../../helpers/constants';
 import AuthContext from '../../../contexts/authContext';
-import CustomBadge from '../../../components/CustomComponent/CustomBadge';
+import StatusBadge from '../../../components/CustomComponent/StatusBadge';
 import EditButton from '../../../components/CustomComponent/Buttons/EditButton';
 import Card, { CardBody } from '../../../components/bootstrap/Card';
 import Button from '../../../components/bootstrap/Button';
 import {
-	isPrivilegedToggleMode,
 	isSelfEquivalentMode,
 } from '../../../helpers/roleToggleUtils';
 import AssetRequestActionButtons from './AssetRequestActionButtons';
 import AssetRequestViewDocumentsModal, {
 	type AssetRequestViewDocumentsContext,
 } from './AssetRequestViewDocumentsModal';
+import AssetRequestCommentsModal, {
+	type AssetRequestCommentsContext,
+} from './AssetRequestCommentsModal';
 import {
 	ASSET_REQUEST_STATUS_LOOKUP,
 	assetRequestRowStatus,
@@ -48,7 +49,6 @@ const AssetRequests = ({
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
-	const isPrivilegedMode = isPrivilegedToggleMode(userData, mode);
 	const isSelfMode = isSelfEquivalentMode(userData, mode);
 	const userIdFilter = isSelfMode && userData?.id ? `user=${userData.id}` : '';
 	const scopeFilters = userIdFilter;
@@ -60,6 +60,8 @@ const AssetRequests = ({
 	const [viewDocsContext, setViewDocsContext] = useState<AssetRequestViewDocumentsContext | null>(
 		null,
 	);
+	const [commentsOpen, setCommentsOpen] = useState(false);
+	const [commentsContext, setCommentsContext] = useState<AssetRequestCommentsContext | null>(null);
 	const { theme, rowStyles, headerStyles } = useTablestyle();
 	const { showErrorNotification } = useToasterNotification();
 
@@ -70,6 +72,16 @@ const AssetRequests = ({
 			documents: resolveAssetDocumentsFromRow(rowData),
 		});
 		setViewDocsOpen(true);
+	}, []);
+
+	const openComments = useCallback((rowData: any) => {
+		setCommentsContext({
+			assetRequestId: rowData?.id,
+			employeeName: rowData?.user?.name,
+			description: rowData?.description,
+			status: assetRequestRowStatus(rowData),
+		});
+		setCommentsOpen(true);
 	}, []);
 
 	const showEditAssetRequest = useCallback(
@@ -111,15 +123,11 @@ const AssetRequests = ({
 				...(statusFilter ? { defaultFilter: [statusFilter] } : {}),
 				render: (rowData: any) => {
 					const displayStatus = assetRequestRowStatus(rowData);
-					if (!displayStatus) return '----';
-					const badgeKey = assetRequestStatusCode(rowData) || displayStatus;
 					return (
-						<CustomBadge
-							color={
-								statusColorCodes?.[String(badgeKey).toUpperCase()] || '#E4E4E4'
-							}>
-							{displayStatus}
-						</CustomBadge>
+						<StatusBadge
+							status={assetRequestStatusCode(rowData) || displayStatus}
+							emptyFallback='----'
+						/>
 					);
 				},
 			},
@@ -137,24 +145,26 @@ const AssetRequests = ({
 			filtering: false,
 			render: (rowData: any) => (
 				<div className='d-flex flex-row flex-nowrap gap-1 justify-content-end align-items-center'>
-					{isPrivilegedMode ? (
-						<AssetRequestActionButtons
-							id={rowData.id}
-							tableRef={tableRef}
-							canApprove={rowData?.actions?.can_approve}
-							canReject={rowData?.actions?.can_reject}
-							canCancel={rowData?.actions?.can_cancel}
+					<AssetRequestActionButtons
+						id={rowData.id}
+						tableRef={tableRef}
+						canApprove={rowData?.actions?.can_approve}
+						canReject={rowData?.actions?.can_reject}
+						canCancel={rowData?.actions?.can_cancel}
+					/>
+					<Tooltip arrow title='Comments' placement='top'>
+						<Button
+							type='button'
+							color='info'
+							isLight
+							size='sm'
+							icon='Comment'
+							onClick={(e: React.MouseEvent) => {
+								e.stopPropagation();
+								openComments(rowData);
+							}}
 						/>
-					) : null}
-					{isSelfMode ? (
-						<AssetRequestActionButtons
-							id={rowData.id}
-							tableRef={tableRef}
-							canApprove={false}
-							canReject={false}
-							canCancel={rowData?.actions?.can_cancel ?? false}
-						/>
-					) : null}
+					</Tooltip>
 					{hasAssetDocuments(rowData) ? (
 						<Tooltip arrow title='View documents' placement='top'>
 							<Button
@@ -179,12 +189,11 @@ const AssetRequests = ({
 		return [...staticColumns, actionColumn];
 	}, [
 		staticColumns,
-		isPrivilegedMode,
-		isSelfMode,
 		showEditAssetRequest,
 		tableRef,
 		editModalToggle,
 		openViewDocuments,
+		openComments,
 	]);
 
 	const tableActions = useMemo(
@@ -215,6 +224,11 @@ const AssetRequests = ({
 
 	return (
 		<>
+			<AssetRequestCommentsModal
+				isOpen={commentsOpen}
+				setIsOpen={setCommentsOpen}
+				context={commentsContext}
+			/>
 			<AssetRequestViewDocumentsModal
 				isOpen={viewDocsOpen}
 				setIsOpen={setViewDocsOpen}

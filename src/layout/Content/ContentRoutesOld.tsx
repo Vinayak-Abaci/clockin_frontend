@@ -6,7 +6,6 @@ import ErrorPage from '../../pages/PublicPages/ErrorPage';
 // import EditMessageTemplate from '../../pages/Settings/MessageTemplates/EditTemplate';
 // import EventDetailsPage from '../../pages/Events/EventDetailsPage';
 // const SiteDetailsPage = lazy(() => import('../../pages/Site/SiteDetailsPage'));
-// const TenantDetailsPage = lazy(() => import('../../pages/Tenant/TenantDetailsPage'));
 // import Registration from '../../pages/Auth/Registration';
 
 const ContentRoutes = () => {

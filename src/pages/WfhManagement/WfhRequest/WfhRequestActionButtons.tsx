@@ -5,9 +5,9 @@ import Button from '../../../components/bootstrap/Button';
 import { authAxios } from '../../../axiosInstance';
 import { buttonColor } from '../../../helpers/constants';
 import { extractApiErrorMessage } from '../../../hooks/useErrorHandler';
-import { assetRequestActionUrl, type AssetRequestAction } from './assetRequestUtils';
+import { wfhRequestActionUrl, type WfhRequestAction } from './wfhRequestUtils';
 
-type AssetRequestActionButtonsProps = {
+type WfhRequestActionButtonsProps = {
 	id: number;
 	tableRef: MutableRefObject<any>;
 	canApprove?: boolean;
@@ -15,7 +15,7 @@ type AssetRequestActionButtonsProps = {
 	canCancel?: boolean;
 };
 
-const AssetRequestActionButtons: React.FC<AssetRequestActionButtonsProps> = ({
+const WfhRequestActionButtons: React.FC<WfhRequestActionButtonsProps> = ({
 	id,
 	tableRef,
 	canApprove,
@@ -30,7 +30,7 @@ const AssetRequestActionButtons: React.FC<AssetRequestActionButtonsProps> = ({
 		return null;
 	}
 
-	const runAction = (label: string, colorIndex: number, action: AssetRequestAction) => {
+	const runAction = (label: string, colorIndex: number, action: WfhRequestAction) => {
 		Swal.fire({
 			title: `${label} request?`,
 			icon: 'question',
@@ -44,7 +44,7 @@ const AssetRequestActionButtons: React.FC<AssetRequestActionButtonsProps> = ({
 			showLoaderOnConfirm: true,
 			preConfirm: async () => {
 				try {
-					const response = await authAxios.post(assetRequestActionUrl(id, action));
+					const response = await authAxios.post(wfhRequestActionUrl(id, action));
 					tableRef.current?.onQueryChange?.();
 					return response.data;
 				} catch (error) {
@@ -99,4 +99,4 @@ const AssetRequestActionButtons: React.FC<AssetRequestActionButtonsProps> = ({
 	);
 };
 
-export default AssetRequestActionButtons;
+export default WfhRequestActionButtons;

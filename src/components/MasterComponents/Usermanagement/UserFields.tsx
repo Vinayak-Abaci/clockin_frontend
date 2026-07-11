@@ -1,8 +1,8 @@
 import React from 'react';
 import FormGroup from '../../bootstrap/forms/FormGroup';
 import ReactSelectComponent from '../../CustomComponent/Select/ReactSelectComponent';
+import CheckboxWithLabel from '../../CustomComponent/CheckboxWithLabel';
 import { GenderOptions } from '../../../helpers/constants';
-import { TENANT_USER_ROLE_OPTIONS } from '../../../helpers/roleToggleUtils';
 
 const UserFields = ({
 	register,
@@ -144,15 +144,19 @@ const UserFields = ({
 				</FormGroup>
 			</div>
 			<div className='col-12 mb-2'>
-				<ReactSelectComponent
+				<CheckboxWithLabel
 					control={control}
-					name='Role *'
-					isMulti={false}
-					field_name='tenant_role'
-					getValues={getValues}
-					errors={errors}
-					options={TENANT_USER_ROLE_OPTIONS}
-					isRequired
+					name='is_manager'
+					label='Manager Role'
+					layout='form-field'
+				/>
+			</div>
+			<div className='col-12 mb-2'>
+				<CheckboxWithLabel
+					control={control}
+					name='is_hr'
+					label='HR Role'
+					layout='form-field'
 				/>
 			</div>
 		</div>

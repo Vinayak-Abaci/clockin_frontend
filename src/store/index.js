@@ -6,7 +6,6 @@ import FieldSlice from './fields';
 import FeaturesSlice from './features';
 import NotificationSlice from './notifications';
 import DashboardSlice from './dashboard';
-import TenantSlice from './tenantSlice'
 import VehicleSlice from './vehicles'
 
 
@@ -19,7 +18,6 @@ const store = configureStore({
 		FeaturesSlice,
 		NotificationSlice,
 		DashboardSlice,
-		TenantSlice,
 		VehicleSlice
 	},
 });

@@ -7,7 +7,7 @@ import Card, { CardTitle } from '../../components/bootstrap/Card';
 import Page from '../../layout/Page/Page';
 import AddButton from '../../components/CustomComponent/Buttons/AddButton';
 import AuthContext from '../../contexts/authContext';
-import { isUserRole } from '../../helpers/roleToggleUtils';
+import { isSelfEquivalentMode } from '../../helpers/roleToggleUtils';
 import LeaveRequests, { type LeaveTypeTableFilter } from './LeaveRequest/LeaveRequests';
 import AddLeaveRequest from './LeaveRequest/AddLeaveRequest';
 import {
@@ -24,7 +24,7 @@ const LeaveRequestsPage = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editId, setEditId] = useState<any>(null);
-	const showAddLeaveRequest = isUserRole(userData?.user_type) || mode === 'Self';
+	const showAddLeaveRequest = isSelfEquivalentMode(userData, mode);
 
 	const openAddModal = () => {
 		setEditId(null);

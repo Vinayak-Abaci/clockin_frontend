@@ -32,10 +32,59 @@ export const FISCAL_MONTH_OPTIONS = [
 	{ label: 'December', value: 12 },
 ];
 
+export const APPROVER_ROLE_OPTIONS = [
+	{ label: 'Reporting Manager', value: 'REPORTING_MANAGER' },
+	{ label: 'HR', value: 'HR' },
+	{ label: 'Group Contact', value: 'GROUP_CONTACT' },
+];
+
 export type SelectOption = { label: string; value: string };
+
+export type ApprovalWorkflowLevel = {
+	level: number;
+	approver_role: string;
+	is_compulsory: boolean;
+};
 
 const findStringOption = (options: SelectOption[], value: unknown) =>
 	options.find((option) => option.value === String(value ?? '')) ?? null;
+
+const workflowToSelectOptions = (raw: unknown): SelectOption[] => {
+	if (!Array.isArray(raw)) return [];
+	return [...raw]
+		.filter((row) => row && typeof row === 'object')
+		.sort((a, b) => Number((a as ApprovalWorkflowLevel).level ?? 0) - Number((b as ApprovalWorkflowLevel).level ?? 0))
+		.map((row) => {
+			const role = String((row as ApprovalWorkflowLevel).approver_role ?? '')
+				.trim()
+				.toUpperCase();
+			if (!role) return null;
+			return (
+				findStringOption(APPROVER_ROLE_OPTIONS, role) ?? {
+					label: role.replace(/_/g, ' '),
+					value: role,
+				}
+			);
+		})
+		.filter((option): option is SelectOption => Boolean(option));
+};
+
+const selectOptionsToWorkflow = (options: SelectOption[] | null | undefined): ApprovalWorkflowLevel[] => {
+	if (!Array.isArray(options)) return [];
+	return options
+		.map((option, index) => {
+			const approver_role = String(option?.value ?? '')
+				.trim()
+				.toUpperCase();
+			if (!approver_role) return null;
+			return {
+				level: index + 1,
+				approver_role,
+				is_compulsory: true,
+			};
+		})
+		.filter((row): row is ApprovalWorkflowLevel => Boolean(row));
+};
 
 export type CompanyHrSettingsFormValues = {
 	multi_shift_partial_status: SelectOption | null;
@@ -48,6 +97,8 @@ export type CompanyHrSettingsFormValues = {
 	attendance_geofence_radius_meters: number;
 	attendance_gps_required: boolean;
 	attendance_gps_strict: boolean;
+	asset_approval_workflow: SelectOption[];
+	wfh_approval_workflow: SelectOption[];
 };
 
 export const COMPANY_HR_SETTINGS_DEFAULTS: CompanyHrSettingsFormValues = {
@@ -61,6 +112,8 @@ export const COMPANY_HR_SETTINGS_DEFAULTS: CompanyHrSettingsFormValues = {
 	attendance_geofence_radius_meters: 100,
 	attendance_gps_required: false,
 	attendance_gps_strict: false,
+	asset_approval_workflow: [],
+	wfh_approval_workflow: [],
 };
 
 export const unwrapCompanyHrSettings = (data: unknown) => {
@@ -104,6 +157,8 @@ export const toCompanyHrSettingsForm = (
 		data.attendance_gps_strict != null
 			? Boolean(data.attendance_gps_strict)
 			: COMPANY_HR_SETTINGS_DEFAULTS.attendance_gps_strict,
+	asset_approval_workflow: workflowToSelectOptions(data.asset_approval_workflow),
+	wfh_approval_workflow: workflowToSelectOptions(data.wfh_approval_workflow),
 });
 
 export const buildCompanyHrSettingsPayload = (values: CompanyHrSettingsFormValues) => {
@@ -117,6 +172,8 @@ export const buildCompanyHrSettingsPayload = (values: CompanyHrSettingsFormValue
 		attendance_geofence_radius_meters: values.attendance_geofence_radius_meters,
 		attendance_gps_required: values.attendance_gps_required,
 		attendance_gps_strict: values.attendance_gps_strict,
+		asset_approval_workflow: selectOptionsToWorkflow(values.asset_approval_workflow),
+		wfh_approval_workflow: selectOptionsToWorkflow(values.wfh_approval_workflow),
 	};
 
 	if (values.yearly_reset_basis?.value === 'FINANCIAL_YEAR') {

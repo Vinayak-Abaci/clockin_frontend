@@ -46,6 +46,7 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
 	maintenance: { styleKey: 'Scheduled', icon: 'Build', label: 'Maintenance' },
 	unknown: { styleKey: 'Check', icon: 'HelpOutline', label: 'Unknown' },
 	requested: { styleKey: 'Scheduled', icon: 'Schedule', label: 'Requested' },
+	applied: { styleKey: 'Scheduled', icon: 'Schedule', label: 'Applied' },
 	request_cancelled: { styleKey: 'Cancelled', icon: 'Cancel', label: 'Request Cancelled' },
 	scheduled: { styleKey: 'Scheduled', icon: 'Schedule', label: 'Scheduled' },
 };

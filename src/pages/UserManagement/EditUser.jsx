@@ -14,10 +14,6 @@ import ImageCropper from '../../components/CustomComponent/ImageCropper';
 import AuthContext from '../../contexts/authContext';
 import CustomSpinner from '../../components/CustomSpinner/CustomSpinner';
 import { GenderOptions } from '../../helpers/constants';
-import {
-	appendTenantRoleFormFields,
-	mapAccountToTenantRoleSelect,
-} from '../../helpers/roleToggleUtils';
 
 const mapGenderSelect = (g) => {
 	if (g == null || g === '') return null;
@@ -104,7 +100,8 @@ const buildFormValuesFromAccount = (user, scheduleOptions, reportingOpts, hrOpts
 		personal_contact_number: user?.personal_contact_number || '',
 		office_contact_number:
 			user?.office_contact_number || user?.user_data?.user_contact_phone || '',
-		tenant_role: mapAccountToTenantRoleSelect(user),
+		is_manager: Boolean(user?.is_manager),
+		is_hr: Boolean(user?.is_hr),
 		group:
 			user?.group?.id != null
 				? { label: user.group.name || '', value: user.group.id }
@@ -140,7 +137,8 @@ const buildAccountFormData = (data, image, initialScheduleIds = []) => {
 	appendFormField(formData, 'country', data?.country);
 	appendFormField(formData, 'personal_contact_number', data?.personal_contact_number);
 	appendFormField(formData, 'office_contact_number', data?.office_contact_number);
-	appendTenantRoleFormFields(formData, data?.tenant_role);
+	formData.append('is_manager', String(Boolean(data?.is_manager)));
+	formData.append('is_hr', String(Boolean(data?.is_hr)));
 	appendFormField(formData, 'group', data?.group?.value);
 	appendFormField(formData, 'site', data?.site?.value);
 	appendFormField(formData, 'reporting_manager', data?.reporting_manager?.value);

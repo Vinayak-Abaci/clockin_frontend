@@ -13,6 +13,81 @@ export const ASSET_REQUEST_STATUS_LOOKUP: Record<string, string> = {
 	CANCELLED: 'Cancelled',
 };
 
+export type AssetRequestAction = 'approve' | 'reject' | 'cancel';
+
+export const assetRequestActionUrl = (
+	id: number | string,
+	action: AssetRequestAction,
+): string => `/api/hr/asset-requests/${id}/${action}/`;
+
+export const assetRequestDetailUrl = (id: number | string): string =>
+	`/api/hr/asset-requests/${id}/`;
+
+export const assetRequestCommandsUrl = (id: number | string): string =>
+	`/api/hr/asset-requests/${id}/commands/`;
+
+export type AssetRequestCommand = {
+	id?: number | string;
+	command?: string;
+	response_text?: string;
+	command_by?: unknown;
+	command_datetime?: string;
+	created_at?: string;
+};
+
+export const normalizeAssetRequestCommands = (raw: unknown): AssetRequestCommand[] => {
+	const source =
+		raw != null &&
+		typeof raw === 'object' &&
+		!Array.isArray(raw) &&
+		Array.isArray((raw as { commands?: unknown[] }).commands)
+			? (raw as { commands: unknown[] }).commands
+			: raw;
+	const list = Array.isArray(source) ? source : (source as { results?: unknown[] })?.results || [];
+	return [...list]
+		.filter((item) => item != null)
+		.sort((a, b) => {
+			const aTime = String(
+				(a as AssetRequestCommand).command_datetime ||
+					(a as AssetRequestCommand).created_at ||
+					'',
+			);
+			const bTime = String(
+				(b as AssetRequestCommand).command_datetime ||
+					(b as AssetRequestCommand).created_at ||
+					'',
+			);
+			return aTime.localeCompare(bTime);
+		}) as AssetRequestCommand[];
+};
+
+export const assetRequestCommandText = (cmd: AssetRequestCommand): string =>
+	String(cmd.command || cmd.response_text || '').trim();
+
+export const formatAssetRequestCommandAuthor = (commandBy: unknown): string | null => {
+	if (commandBy == null || commandBy === '') return null;
+	if (typeof commandBy === 'string') {
+		const value = commandBy.trim();
+		return value || null;
+	}
+	if (typeof commandBy === 'number' && !Number.isNaN(commandBy)) {
+		return `User #${commandBy}`;
+	}
+	if (typeof commandBy === 'object') {
+		const record = commandBy as Record<string, unknown>;
+		const displayName = String(record.name || '').trim();
+		if (displayName) return displayName;
+		const first = String(record.first_name || '').trim();
+		const last = String(record.last_name || '').trim();
+		const full = [first, last].filter(Boolean).join(' ');
+		if (full) return full;
+		const email = String(record.email || '').trim();
+		if (email) return email;
+		if (record.id != null && record.id !== '') return `User #${record.id}`;
+	}
+	return null;
+};
+
 export const assetRequestRowStatus = (row: any): string | undefined =>
 	row?.status ?? row?.approval_status ?? row?.state ?? row?.meta_data?.status ?? undefined;
 

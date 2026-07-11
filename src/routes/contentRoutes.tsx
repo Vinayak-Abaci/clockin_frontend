@@ -21,6 +21,7 @@ const MAINROUTE={
 	UserDetails: lazy(() => import('../pages/UserManagement/UserManagementPage')),
 	LeaveRequests: lazy(() => import('../pages/LeaveManagement/LeaveRequestsPage')),
 	AssetRequests: lazy(() => import('../pages/AssetManagement/AssetRequestsPage')),
+	WfhRequests: lazy(() => import('../pages/WfhManagement/WfhRequestsPage')),
 	LeaveTypes: lazy(() => import('../pages/LeaveManagement/LeaveTypesPage')),
 	LeaveManagement: lazy(() => import('../pages/LeaveManagement/index')),
 	Attendance: lazy(() => import('../pages/Attendance/index')),
@@ -126,6 +127,11 @@ const RouteConfig: CustomRouteConfig[] = [
 	{
 		path: allRoutesObject.AssetRequests.path,
 		element: <MAINROUTE.AssetRequests />,
+		allowedTo: SELF_MODE_ROUTES,
+	},
+	{
+		path: allRoutesObject.WfhRequests.path,
+		element: <MAINROUTE.WfhRequests />,
 		allowedTo: SELF_MODE_ROUTES,
 	},
 	{

@@ -12,7 +12,6 @@ import UserFields from '../../components/MasterComponents/Usermanagement/UserFie
 import useToasterNotification from '../../hooks/useToasterNotification';
 import ImageCropper from '../../components/CustomComponent/ImageCropper';
 import AuthContext from '../../contexts/authContext';
-import { appendTenantRoleFormFields } from '../../helpers/roleToggleUtils';
 
 const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 	const {
@@ -26,7 +25,8 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 		formState: { errors },
 	} = useForm({
 		defaultValues: {
-			tenant_role: null,
+			is_manager: false,
+			is_hr: false,
 		},
 	});
 	const [waitingForAxios, setwaitingForAxios] = useState(false);
@@ -42,9 +42,9 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 	useEffect(() => {
 		if (isOpen) {
 			reset({
-				tenant_role: null,
+				is_manager: false,
+				is_hr: false,
 			});
-			setValue('tenant_role', null);
 			setImage(null);
 		}
 	}, [isOpen, reset, setValue]);
@@ -147,7 +147,8 @@ const AddUsers = ({ isOpen, setIsOpen, tableRef, title }) => {
 		appendFormField(formData, 'country', data?.country);
 		appendFormField(formData, 'personal_contact_number', data?.personal_contact_number);
 		appendFormField(formData, 'office_contact_number', data?.office_contact_number);
-		appendTenantRoleFormFields(formData, data?.tenant_role);
+		formData.append('is_manager', String(Boolean(data?.is_manager)));
+		formData.append('is_hr', String(Boolean(data?.is_hr)));
 		appendFormField(formData, 'group', data?.group?.value);
 		appendFormField(formData, 'site', data?.site?.value);
 		appendFormField(formData, 'reporting_manager', data?.reporting_manager?.value);

@@ -78,7 +78,7 @@ const LeaveApprovalTimelineModal = ({
 		setStepsMeta({});
 
 		authAxios
-			.get(`/api/hr/leave-requests/${context.leaveRequestId}/approval-steps/`)
+			.get(`/api/hr/leave-requests/${context.leaveRequestId}/`)
 			.then((res) => {
 				if (!cancelled) {
 					const { steps: parsedSteps, meta } = parseApprovalStepsResponse(res.data);

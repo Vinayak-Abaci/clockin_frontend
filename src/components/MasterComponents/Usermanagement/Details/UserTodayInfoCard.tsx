@@ -52,7 +52,7 @@ const UserTodayInfoCard = ({ userId, fillHeight = false }: Props) => {
                 params: { calendar_type: 'user', user_id: userId, date: today },
             })
             .then((res) => {
-                if (!cancelled) setDetail(res.data);
+                if (!cancelled) setDetail(res?.data ?? null);
             })
             .finally(() => {
                 if (!cancelled) setLoading(false);
@@ -80,6 +80,10 @@ const UserTodayInfoCard = ({ userId, fillHeight = false }: Props) => {
                     <div className='d-flex justify-content-center py-4'>
                         <CustomSpinner />
                     </div>
+                ) : !detail ? (
+                    <p className='text-muted mb-0 small text-center py-4'>
+                        No details available for today.
+                    </p>
                 ) : (
                     <div className='row g-3 align-items-start'>
                         <div className='col-12 col-md-6 col-xl-3 d-flex flex-column'>

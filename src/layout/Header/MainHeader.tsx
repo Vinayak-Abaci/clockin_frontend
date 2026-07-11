@@ -41,14 +41,7 @@ const MainHeader = () => {
 						color='primary'
 					/>
 					</div>
-					{/* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-
-						{/* <div className='prevent-userselect'>
-							<div className='fw-bold fs-6 mb-0'>{userData?.preferred_name||'HiLITE'}</div>
-							<div className='text-muted'>
-								<small>{userTypesToCapital[userData?.user_type]}</small>
-							</div>
-						</div> */}
+					
 					</div>
 				</HeaderLeft>
 				<MainHeaderRight />

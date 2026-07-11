@@ -112,8 +112,8 @@ const LeaveRequests = ({
 	const { userData } = useContext(AuthContext);
 	const accountToggle = useSelector((state: any) => state.authSlice?.account_toggle_button);
 	const mode = accountToggle === 'Self' ? 'Self' : 'Admin';
-	const isPrivilegedMode = isPrivilegedToggleMode(userData?.user_type, mode);
-	const isSelfMode = isSelfEquivalentMode(userData?.user_type, mode);
+	const isPrivilegedMode = isPrivilegedToggleMode(userData, mode);
+	const isSelfMode = isSelfEquivalentMode(userData, mode);
 	const userIdFilter = isSelfMode && userData?.id ? `user=${userData.id}` : '';
 	const scopeFilters = userIdFilter;
 	/** Accept/Reject for Admin, Manager, and HR in privileged mode (not Self / user view) */

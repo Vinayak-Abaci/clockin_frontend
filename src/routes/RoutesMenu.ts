@@ -65,6 +65,10 @@ export const allRoutesObject = {
 		id: 'AssetRequests',
 		path: '/asset-requests',
 	},
+	WfhRequests: {
+		id: 'WfhRequests',
+		path: '/wfh-requests',
+	},
 	LeaveTypes: {
 		id: 'LeaveTypes',
 		path: '/leave-types',
@@ -201,6 +205,12 @@ export const CompanyAdminRoutes = {
 		path: '/asset-requests',
 		icon: 'Inventory',
 	},
+	WfhRequests: {
+		id: 'WfhRequests',
+		text: 'WFH Requests',
+		path: '/wfh-requests',
+		icon: 'HomeWork',
+	},
 	LeaveTypes: {
 		id: 'LeaveTypes',
 		text: 'Leave Types',
@@ -259,6 +269,12 @@ export const UserRoutes = {
 		text: 'Asset Requests',
 		path: '/asset-requests',
 		icon: 'Inventory',
+	},
+	WfhRequests: {
+		id: 'WfhRequests',
+		text: 'WFH Requests',
+		path: '/wfh-requests',
+		icon: 'HomeWork',
 	},
 	Attendance: {
 		id: 'Attendance',
@@ -347,12 +363,6 @@ export const pagesNotInSideBar = {
 		icon: '',
 	},
 
-	TenantDetails: {
-		id: 'TenantDetails',
-		text: 'Tenant Details',
-		path: '/tenants-details/:id',
-		icon: '',
-	},
 	UsertDetails: {
 		id: 'UserDetails',
 		text: 'User Details',

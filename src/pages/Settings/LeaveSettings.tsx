@@ -12,6 +12,7 @@ import { authAxios } from '../../axiosInstance';
 import useToasterNotification from '../../hooks/useToasterNotification';
 import usePermissionHook from '../../hooks/userPermissionHook';
 import {
+	APPROVER_ROLE_OPTIONS,
 	buildCompanyHrSettingsPayload,
 	COMPANY_HR_SETTINGS_DEFAULTS,
 	EXTRA_WORK_COMPENSATION_OPTIONS,
@@ -41,7 +42,6 @@ const LeaveSettings: FC = () => {
 	const { showErrorNotification, showSuccessNotification } = useToasterNotification();
 	const [pageLoading, setPageLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [settingsId, setSettingsId] = useState<number | null>(null);
 	const canManageSettings = usePermissionHook('manage_general_settings');
 
 	const {
@@ -51,7 +51,7 @@ const LeaveSettings: FC = () => {
 		control,
 		setValue,
 		watch,
-		formState: { errors },
+		formState: { errors, isDirty },
 	} = useForm<CompanyHrSettingsFormValues>({
 		defaultValues: COMPANY_HR_SETTINGS_DEFAULTS,
 	});
@@ -74,8 +74,6 @@ const LeaveSettings: FC = () => {
 				if (cancelled) return;
 				const settings = unwrapCompanyHrSettings(res.data);
 				if (settings) {
-					const id = Number(settings.id);
-					setSettingsId(Number.isNaN(id) ? null : id);
 					reset(toCompanyHrSettingsForm(settings as Record<string, unknown>));
 				}
 			})
@@ -92,11 +90,6 @@ const LeaveSettings: FC = () => {
 	}, []);
 
 	const saveSettings = () => {
-		if (!settingsId) {
-			showErrorNotification('Settings record not found.');
-			return;
-		}
-
 		const values = getValues();
 		if (!values.default_timezone?.trim()) {
 			showErrorNotification('Default timezone is required.');
@@ -109,8 +102,14 @@ const LeaveSettings: FC = () => {
 
 		setSaving(true);
 		authAxios
-			.patch(`${SETTINGS_URL}${settingsId}/`, buildCompanyHrSettingsPayload(values))
-			.then(() => {
+			.patch(SETTINGS_URL, buildCompanyHrSettingsPayload(values))
+			.then((res) => {
+				const settings = unwrapCompanyHrSettings(res?.data);
+				if (settings) {
+					reset(toCompanyHrSettingsForm(settings as Record<string, unknown>));
+				} else {
+					reset(values);
+				}
 				showSuccessNotification('Settings saved successfully.');
 			})
 			.catch((err) => {
@@ -139,7 +138,12 @@ const LeaveSettings: FC = () => {
 				</CardLabel>
 				<CardActions>
 					{canManageSettings ? (
-						<Button color='warning' onClick={saveSettings} isLight icon='Save' isDisable={saving}>
+						<Button
+							color='warning'
+							onClick={saveSettings}
+							isLight
+							icon='Save'
+							isDisable={saving || !isDirty}>
 							{saving ? <Spinner size='sm' /> : 'Save'}
 						</Button>
 					) : null}
@@ -206,7 +210,9 @@ const LeaveSettings: FC = () => {
 										min={1}
 										max={12}
 										onChange={(_event, value) =>
-											setValue('fiscal_year_start_month', value as number)
+											setValue('fiscal_year_start_month', value as number, {
+												shouldDirty: true,
+											})
 										}
 									/>
 								</div>
@@ -241,12 +247,40 @@ const LeaveSettings: FC = () => {
 										step={1}
 										min={1}
 										max={365}
-										onChange={(_event, value) => setValue('comp_off_expiry_days', value as number)}
+										onChange={(_event, value) =>
+											setValue('comp_off_expiry_days', value as number, { shouldDirty: true })
+										}
 									/>
 								</div>
 							</FormGroup>
 						</div>
 					) : null}
+
+					<div className='col-md-6'>
+						<ReactSelectComponent
+							control={control}
+							name='WFH approval'
+							isMulti
+							field_name='wfh_approval_workflow'
+							getValues={getValues}
+							errors={errors}
+							options={APPROVER_ROLE_OPTIONS}
+							isClearable
+						/>
+					</div>
+
+					<div className='col-md-6'>
+						<ReactSelectComponent
+							control={control}
+							name='Asset approval'
+							isMulti
+							field_name='asset_approval_workflow'
+							getValues={getValues}
+							errors={errors}
+							options={APPROVER_ROLE_OPTIONS}
+							isClearable
+						/>
+					</div>
 
 					<div className='col-md-6'>
 						<CheckboxWithLabel
